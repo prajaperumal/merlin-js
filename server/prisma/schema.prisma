@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  googleId    String    @unique @map("google_id")
+  email       String    @unique
+  name        String?
+  picture     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  lastLogin   DateTime? @map("last_login")
+  
+  watchstreams     Watchstream[]
+  ownedCircles     Circle[]       @relation("CircleOwner")
+  circleMemberships CircleMember[]
+  
+  @@map("users")
+}
+
+model Movie {
+  id              Int      @id @default(autoincrement())
+  tmdbId          Int      @unique @map("tmdb_id")
+  title           String
+  originalTitle   String?  @map("original_title")
+  overview        String?
+  releaseDate     String?  @map("release_date")
+  year            String?
+  posterPath      String?  @map("poster_path")
+  posterUrl       String?  @map("poster_url")
+  backdropPath    String?  @map("backdrop_path")
+  backdropUrl     String?  @map("backdrop_url")
+  voteAverage     Float?   @map("vote_average")
+  voteCount       Int?     @map("vote_count")
+  popularity      Float?
+  originalLanguage String? @map("original_language")
+  adult           Boolean  @default(false)
+  genreIds        Json?    @map("genre_ids")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  watchstreamMovies WatchstreamMovie[]
+  
+  @@map("movies")
+}
+
+model Watchstream {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  user   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movies WatchstreamMovie[]
+  
+  @@unique([userId, name])
+  @@map("watchstreams")
+}
+
+model WatchstreamMovie {
+  id            Int      @id @default(autoincrement())
+  watchstreamId Int      @map("watchstream_id")
+  movieTmdbId   Int      @map("movie_tmdb_id")
+  watchStatus   String   @default("backlog") @map("watch_status")
+  addedAt       DateTime @default(now()) @map("added_at")
+  
+  watchstream Watchstream @relation(fields: [watchstreamId], references: [id], onDelete: Cascade)
+  movie       Movie       @relation(fields: [movieTmdbId], references: [tmdbId])
+  
+  @@unique([watchstreamId, movieTmdbId])
+  @@map("watchstream_movies")
+}
+
+
+model Circle {
+  id          Int      @id @default(autoincrement())
+  name        String
+  ownerUserId Int      @map("owner_user_id")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  owner   User           @relation("CircleOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  members CircleMember[]
+  
+  @@map("circles")
+}
+
+model CircleMember {
+  id         Int       @id @default(autoincrement())
+  circleId   Int       @map("circle_id")
+  userId     Int       @map("user_id")
+  status     String    @default("pending")
+  invitedBy  Int       @map("invited_by")
+  invitedAt  DateTime  @default(now()) @map("invited_at")
+  joinedAt   DateTime? @map("joined_at")
+  
+  circle Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([circleId, userId])
+  @@map("circle_members")
+}

@@ -1,0 +1,21 @@
+.icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    color: currentColor;
+}
+
+.small {
+    width: 16px;
+    height: 16px;
+}
+
+.medium {
+    width: 20px;
+    height: 20px;
+}
+
+.large {
+    width: 24px;
+    height: 24px;
+}
