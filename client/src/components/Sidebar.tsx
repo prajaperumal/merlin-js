@@ -69,15 +69,7 @@ export function Sidebar() {
                                         key={ws.id}
                                         to={`/watchstreams/${ws.id}`}
                                         className={styles.subNavLink}
-                                        style={{
-                                            display: 'block',
-                                            padding: 'var(--spacing-sm) var(--spacing-md)',
-                                            color: 'var(--color-text-secondary)',
-                                            fontSize: 'var(--font-size-sm)',
-                                            borderRadius: 'var(--radius-sm)',
-                                            transition: 'all var(--transition-fast)',
-                                            marginBottom: 'var(--spacing-xs)',
-                                        }}
+                                        data-type="watchstream"
                                     >
                                         {ws.name}
                                     </Link>
@@ -122,69 +114,18 @@ export function Sidebar() {
                     </div>
                     {circlesExpanded && (
                         <div style={{ marginLeft: 'var(--spacing-lg)', marginTop: 'var(--spacing-sm)' }}>
-                            {circles.owned.length > 0 && (
-                                <div>
-                                    <div style={{
-                                        fontSize: 'var(--font-size-xs)',
-                                        color: 'var(--color-text-tertiary)',
-                                        padding: 'var(--spacing-xs) var(--spacing-sm)',
-                                        textTransform: 'uppercase',
-                                        fontWeight: 600,
-                                    }}>
-                                        Owned
-                                    </div>
-                                    {circles.owned.slice(0, 5).map((circle) => (
-                                        <Link
-                                            key={circle.id}
-                                            to={`/circles/${circle.id}`}
-                                            className={styles.subNavLink}
-                                            style={{
-                                                display: 'block',
-                                                padding: 'var(--spacing-sm) var(--spacing-md)',
-                                                color: 'var(--color-text-secondary)',
-                                                fontSize: 'var(--font-size-sm)',
-                                                borderRadius: 'var(--radius-sm)',
-                                                transition: 'all var(--transition-fast)',
-                                                marginBottom: 'var(--spacing-xs)',
-                                            }}
-                                        >
-                                            {circle.name}
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                            {circles.member.length > 0 && (
-                                <div style={{ marginTop: 'var(--spacing-sm)' }}>
-                                    <div style={{
-                                        fontSize: 'var(--font-size-xs)',
-                                        color: 'var(--color-text-tertiary)',
-                                        padding: 'var(--spacing-xs) var(--spacing-sm)',
-                                        textTransform: 'uppercase',
-                                        fontWeight: 600,
-                                    }}>
-                                        Member
-                                    </div>
-                                    {circles.member.slice(0, 5).map((circle) => (
-                                        <Link
-                                            key={circle.id}
-                                            to={`/circles/${circle.id}`}
-                                            className={styles.subNavLink}
-                                            style={{
-                                                display: 'block',
-                                                padding: 'var(--spacing-sm) var(--spacing-md)',
-                                                color: 'var(--color-text-secondary)',
-                                                fontSize: 'var(--font-size-sm)',
-                                                borderRadius: 'var(--radius-sm)',
-                                                transition: 'all var(--transition-fast)',
-                                                marginBottom: 'var(--spacing-xs)',
-                                            }}
-                                        >
-                                            {circle.name}
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                            {circles.owned.length === 0 && circles.member.length === 0 && (
+                            {[...circles.owned, ...circles.member].length > 0 ? (
+                                [...circles.owned, ...circles.member].slice(0, 5).map((circle) => (
+                                    <Link
+                                        key={circle.id}
+                                        to={`/circles/${circle.id}`}
+                                        className={styles.subNavLink}
+                                        data-type="circle"
+                                    >
+                                        {circle.name}
+                                    </Link>
+                                ))
+                            ) : (
                                 <div style={{
                                     padding: 'var(--spacing-sm)',
                                     fontSize: 'var(--font-size-sm)',

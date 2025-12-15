@@ -26,3 +26,21 @@
     padding: var(--spacing-2xl);
     color: var(--color-text-tertiary);
 }
+
+/* Watchstream theme - Blue */
+[data-theme="watchstream"] .title {
+    background: linear-gradient(135deg, var(--color-watchstream), var(--color-watchstream-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-theme="watchstream"] button {
+    background: var(--color-watchstream);
+    box-shadow: 0 4px 12px rgba(var(--color-watchstream-rgb), 0.3);
+}
+
+[data-theme="watchstream"] button:hover {
+    background: var(--color-watchstream-hover);
+    box-shadow: 0 6px 16px rgba(var(--color-watchstream-rgb), 0.4);
+}

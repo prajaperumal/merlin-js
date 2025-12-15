@@ -107,4 +107,50 @@ circles.delete('/:id/members/:userId', async (c) => {
     return c.json({ success: true });
 });
 
+// Get circle movies
+circles.get('/:id/movies', async (c) => {
+    const id = parseInt(c.req.param('id'));
+    const movies = await circleRepo.getCircleMovies(id);
+    return c.json({ movies });
+});
+
+// Add movie to circle
+circles.post('/:id/movies', async (c) => {
+    const session = c.get('user') as AuthSession;
+    const id = parseInt(c.req.param('id'));
+    const { movieTmdbId } = await c.req.json();
+
+    if (!movieTmdbId) {
+        return c.json({ error: 'Movie ID is required' }, 400);
+    }
+
+    // Verify user is a member or owner
+    const circle = await circleRepo.getCircleDetails(id);
+    if (!circle) {
+        return c.json({ error: 'Circle not found' }, 404);
+    }
+
+    const isMember = circle.members.some(m => m.id === session.userId);
+    if (!isMember) {
+        return c.json({ error: 'Not a member of this circle' }, 403);
+    }
+
+    const result = await circleRepo.addMovieToCircle(id, movieTmdbId, session.userId);
+
+    if (!result) {
+        return c.json({ error: 'Movie already in circle' }, 409);
+    }
+
+    return c.json({ success: true }, 201);
+});
+
+// Remove movie from circle
+circles.delete('/:id/movies/:movieId', async (c) => {
+    const id = parseInt(c.req.param('id'));
+    const movieId = parseInt(c.req.param('movieId'));
+
+    await circleRepo.removeMovieFromCircle(id, movieId);
+    return c.json({ success: true });
+});
+
 export default circles;

@@ -35,7 +35,7 @@ export function Watchstreams() {
     };
 
     return (
-        <div className={styles.watchstreams}>
+        <div className={styles.container} data-theme="watchstream">
             <div className={styles.header}>
                 <h1 className={styles.title}>My Watchstreams</h1>
                 <Button onClick={() => setShowCreateModal(true)}>Create Watchstream</Button>

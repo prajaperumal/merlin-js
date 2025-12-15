@@ -17,9 +17,10 @@ model User {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   lastLogin   DateTime? @map("last_login")
   
-  watchstreams     Watchstream[]
-  ownedCircles     Circle[]       @relation("CircleOwner")
+  watchstreams      Watchstream[]
+  ownedCircles      Circle[]       @relation("CircleOwner")
   circleMemberships CircleMember[]
+  circleMovies      CircleMovie[]
   
   @@map("users")
 }
@@ -46,6 +47,7 @@ model Movie {
   updatedAt       DateTime @updatedAt @map("updated_at")
   
   watchstreamMovies WatchstreamMovie[]
+  circleMovies      CircleMovie[]
   
   @@map("movies")
 }
@@ -89,6 +91,7 @@ model Circle {
   
   owner   User           @relation("CircleOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   members CircleMember[]
+  movies  CircleMovie[]
   
   @@map("circles")
 }
@@ -107,4 +110,19 @@ model CircleMember {
   
   @@unique([circleId, userId])
   @@map("circle_members")
+}
+
+model CircleMovie {
+  id          Int      @id @default(autoincrement())
+  circleId    Int      @map("circle_id")
+  movieTmdbId Int      @map("movie_tmdb_id")
+  addedBy     Int      @map("added_by")
+  addedAt     DateTime @default(now()) @map("added_at")
+  
+  circle Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  movie  Movie  @relation(fields: [movieTmdbId], references: [tmdbId], onDelete: Cascade)
+  user   User   @relation(fields: [addedBy], references: [id], onDelete: Cascade)
+  
+  @@unique([circleId, movieTmdbId])
+  @@map("circle_movies")
 }

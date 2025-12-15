@@ -27,6 +27,20 @@
   --color-error: hsl(0, 84%, 60%);
   --color-info: hsl(200, 90%, 60%);
 
+  /* Theme Colors - Watchstreams (Blue) */
+  --color-watchstream: #3b82f6;
+  --color-watchstream-hover: #60a5fa;
+  --color-watchstream-light: rgba(59, 130, 246, 0.1);
+  --color-watchstream-medium: rgba(59, 130, 246, 0.15);
+  --color-watchstream-rgb: 59, 130, 246;
+
+  /* Theme Colors - Circles (Orange) */
+  --color-circle: #ea580c;
+  --color-circle-hover: #f97316;
+  --color-circle-light: rgba(234, 88, 12, 0.1);
+  --color-circle-medium: rgba(234, 88, 12, 0.15);
+  --color-circle-rgb: 234, 88, 12;
+
   /* Borders */
   --color-border: hsl(240, 15%, 20%);
   --color-border-hover: hsl(240, 15%, 30%);

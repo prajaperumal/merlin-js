@@ -39,7 +39,7 @@ export function WatchstreamDetail() {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container} data-theme="watchstream">
             <div className={styles.header}>
                 <h1 className={styles.title}>Watchstream Movies</h1>
                 <div className={styles.tabs}>

@@ -5,6 +5,7 @@ import { Home } from './pages/Home';
 import { Watchstreams } from './pages/Watchstreams';
 import { WatchstreamDetail } from './pages/WatchstreamDetail';
 import { Circles } from './pages/Circles';
+import { CircleDetail } from './pages/CircleDetail';
 import { AuthCallback } from './pages/AuthCallback';
 import styles from './App.module.css';
 
@@ -36,6 +37,7 @@ function AppContent() {
                     <Route path="/watchstreams" element={<Watchstreams />} />
                     <Route path="/watchstreams/:id" element={<WatchstreamDetail />} />
                     <Route path="/circles" element={<Circles />} />
+                    <Route path="/circles/:id" element={<CircleDetail />} />
                 </Routes>
             </main>
         </div>

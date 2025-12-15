@@ -189,4 +189,57 @@ export class CircleRepository {
             },
         });
     }
+
+    /**
+     * Get all movies in a circle's watchstream
+     */
+    async getCircleMovies(circleId: number) {
+        return prisma.circleMovie.findMany({
+            where: { circleId },
+            include: {
+                movie: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        picture: true,
+                    },
+                },
+            },
+            orderBy: { addedAt: 'desc' },
+        });
+    }
+
+    /**
+     * Add movie to circle watchstream
+     */
+    async addMovieToCircle(circleId: number, movieTmdbId: number, userId: number) {
+        try {
+            return await prisma.circleMovie.create({
+                data: {
+                    circleId,
+                    movieTmdbId,
+                    addedBy: userId,
+                },
+            });
+        } catch (error: any) {
+            if (error.code === 'P2002') {
+                return null; // Movie already in circle
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Remove movie from circle watchstream
+     */
+    async removeMovieFromCircle(circleId: number, movieTmdbId: number) {
+        return prisma.circleMovie.deleteMany({
+            where: {
+                circleId,
+                movieTmdbId,
+            },
+        });
+    }
 }

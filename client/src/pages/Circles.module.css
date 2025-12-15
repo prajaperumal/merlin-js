@@ -36,3 +36,22 @@
     padding: var(--spacing-2xl);
     color: var(--color-text-tertiary);
 }
+
+/* Circle theme - Orange */
+[data-theme="circle"] .title {
+    background: linear-gradient(135deg, var(--color-circle), var(--color-circle-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-theme="circle"] .createButton {
+    background: var(--color-circle);
+    color: white;
+    box-shadow: 0 4px 12px rgba(var(--color-circle-rgb), 0.3);
+}
+
+[data-theme="circle"] .createButton:hover {
+    background: var(--color-circle-hover);
+    box-shadow: 0 6px 16px rgba(var(--color-circle-rgb), 0.4);
+}

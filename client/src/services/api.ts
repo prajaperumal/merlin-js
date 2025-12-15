@@ -191,6 +191,34 @@ class ApiService {
             credentials: 'include',
         });
     }
+
+    async getCircleMovies(circleId: number): Promise<Movie[]> {
+        const res = await fetch(`${API_BASE}/circles/${circleId}/movies`, {
+            credentials: 'include',
+        });
+        const data = await res.json();
+        return data.movies;
+    }
+
+    async addMovieToCircle(circleId: number, movieTmdbId: number): Promise<void> {
+        const res = await fetch(`${API_BASE}/circles/${circleId}/movies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ movieTmdbId }),
+            credentials: 'include',
+        });
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error);
+        }
+    }
+
+    async removeMovieFromCircle(circleId: number, movieTmdbId: number): Promise<void> {
+        await fetch(`${API_BASE}/circles/${circleId}/movies/${movieTmdbId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+    }
 }
 
 export const api = new ApiService();
