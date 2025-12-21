@@ -1,19 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api';
-import { Movie } from '../types';
+import { Movie, StreamingPlatform } from '../types';
 import { Input } from './ui/Input';
 import { Icon } from './ui/Icon';
 import { Button } from './ui/Button';
+import { Modal } from './ui/Modal';
+import { PlatformSelector } from './PlatformSelector';
 import styles from './SearchBar.module.css';
 
 interface SearchBarProps {
-    onAddToWatchstream?: (movie: Movie) => void;
+    onAddToWatchstream?: (movie: Movie, streamingPlatforms?: StreamingPlatform[]) => void;
+    showPlatformSelection?: boolean;
 }
 
-export function SearchBar({ onAddToWatchstream }: SearchBarProps) {
+export function SearchBar({ onAddToWatchstream, showPlatformSelection = false }: SearchBarProps) {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState<Movie[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showPlatformModal, setShowPlatformModal] = useState(false);
+    const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+    const [streamingPlatforms, setStreamingPlatforms] = useState<StreamingPlatform[]>([]);
     const debounceRef = useRef<NodeJS.Timeout>();
 
     useEffect(() => {
@@ -41,8 +47,24 @@ export function SearchBar({ onAddToWatchstream }: SearchBarProps) {
 
     const handleAddClick = (e: React.MouseEvent, movie: Movie) => {
         e.stopPropagation();
-        if (onAddToWatchstream) {
+        if (showPlatformSelection) {
+            setSelectedMovie(movie);
+            setStreamingPlatforms([]);
+            setShowPlatformModal(true);
+        } else if (onAddToWatchstream) {
             onAddToWatchstream(movie);
+        }
+    };
+
+    const handleConfirmAdd = () => {
+        if (selectedMovie && onAddToWatchstream) {
+            onAddToWatchstream(selectedMovie, streamingPlatforms.length > 0 ? streamingPlatforms : undefined);
+            setShowPlatformModal(false);
+            setSelectedMovie(null);
+            setStreamingPlatforms([]);
+            setQuery('');
+            setSuggestions([]);
+            setShowSuggestions(false);
         }
     };
 
@@ -95,6 +117,54 @@ export function SearchBar({ onAddToWatchstream }: SearchBarProps) {
                         </div>
                     ))}
                 </div>
+            )}
+
+            {showPlatformSelection && (
+                <Modal
+                    isOpen={showPlatformModal}
+                    onClose={() => {
+                        setShowPlatformModal(false);
+                        setSelectedMovie(null);
+                        setStreamingPlatforms([]);
+                    }}
+                    title="Select Streaming Platforms"
+                    footer={
+                        <>
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    setShowPlatformModal(false);
+                                    setSelectedMovie(null);
+                                    setStreamingPlatforms([]);
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button onClick={handleConfirmAdd}>
+                                Add Movie
+                            </Button>
+                        </>
+                    }
+                >
+                    {selectedMovie && (
+                        <div>
+                            <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+                                <h3 style={{ margin: 0, marginBottom: 'var(--spacing-xs)', color: 'var(--color-text-primary)' }}>
+                                    {selectedMovie.title}
+                                </h3>
+                                {selectedMovie.year && (
+                                    <p style={{ margin: 0, fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+                                        {selectedMovie.year}
+                                    </p>
+                                )}
+                            </div>
+                            <PlatformSelector
+                                selectedPlatforms={streamingPlatforms}
+                                onChange={setStreamingPlatforms}
+                            />
+                        </div>
+                    )}
+                </Modal>
             )}
         </div>
     );

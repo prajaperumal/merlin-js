@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Watchstream } from '../types';
 import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
+import { Icon } from '../components/ui/Icon';
 import styles from './Watchstreams.module.css';
 
+interface WatchstreamWithCounts extends Watchstream {
+    backlogCount?: number;
+    watchedCount?: number;
+}
+
 export function Watchstreams() {
-    const [watchstreams, setWatchstreams] = useState<Watchstream[]>([]);
+    const [watchstreams, setWatchstreams] = useState<WatchstreamWithCounts[]>([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newName, setNewName] = useState('');
     const [error, setError] = useState('');
@@ -19,7 +25,25 @@ export function Watchstreams() {
 
     const loadWatchstreams = async () => {
         const data = await api.getWatchstreams();
-        setWatchstreams(data);
+        // Load counts for each watchstream
+        const watchstreamsWithCounts = await Promise.all(
+            data.map(async (ws) => {
+                try {
+                    const [backlog, watched] = await Promise.all([
+                        api.getWatchstreamMovies(ws.id, 'backlog'),
+                        api.getWatchstreamMovies(ws.id, 'watched'),
+                    ]);
+                    return {
+                        ...ws,
+                        backlogCount: backlog.length,
+                        watchedCount: watched.length,
+                    };
+                } catch {
+                    return { ...ws, backlogCount: 0, watchedCount: 0 };
+                }
+            })
+        );
+        setWatchstreams(watchstreamsWithCounts);
     };
 
     const handleCreate = async () => {
@@ -35,26 +59,63 @@ export function Watchstreams() {
     };
 
     return (
-        <div className={styles.container} data-theme="watchstream">
+        <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>My Watchstreams</h1>
-                <Button onClick={() => setShowCreateModal(true)}>Create Watchstream</Button>
+                <div className={styles.headerContent}>
+                    <h1 className={styles.title}>Watchstreams</h1>
+                    <p className={styles.subtitle}>{watchstreams.length} {watchstreams.length === 1 ? 'watchstream' : 'watchstreams'}</p>
+                </div>
+                {watchstreams.length > 0 && (
+                    <Button onClick={() => setShowCreateModal(true)}>Create Watchstream</Button>
+                )}
             </div>
 
             {watchstreams.length > 0 ? (
                 <div className={styles.grid}>
                     {watchstreams.map((watchstream) => (
-                        <Card key={watchstream.id} clickable>
-                            <h3>{watchstream.name}</h3>
-                            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-sm)' }}>
-                                Created {new Date(watchstream.createdAt).toLocaleDateString()}
-                            </p>
-                        </Card>
+                        <Link
+                            key={watchstream.id}
+                            to={`/watchstreams/${watchstream.id}`}
+                            className={styles.watchstreamCard}
+                        >
+                            <div className={styles.cardHeader}>
+                                <div className={styles.cardIcon}>
+                                    <Icon name="airplay" size="large" />
+                                </div>
+                                <h3 className={styles.cardTitle}>{watchstream.name}</h3>
+                            </div>
+                            <div className={styles.cardStats}>
+                                <div className={styles.stat}>
+                                    <Icon name="bookmark" size="small" />
+                                    <span className={styles.statValue}>{watchstream.backlogCount || 0}</span>
+                                    <span className={styles.statLabel}>to watch</span>
+                                </div>
+                                <div className={styles.statDivider}>·</div>
+                                <div className={styles.stat}>
+                                    <Icon name="check-circle" size="small" />
+                                    <span className={styles.statValue}>{watchstream.watchedCount || 0}</span>
+                                    <span className={styles.statLabel}>watched</span>
+                                </div>
+                            </div>
+                            <div className={styles.cardFooter}>
+                                <span className={styles.cardDate}>
+                                    Created {new Date(watchstream.createdAt).toLocaleDateString()}
+                                </span>
+                                <Icon name="chevron-right" size="small" className={styles.cardArrow} />
+                            </div>
+                        </Link>
                     ))}
                 </div>
             ) : (
                 <div className={styles.empty}>
-                    <p>No watchstreams yet. Create one to get started!</p>
+                    <div className={styles.emptyIcon}>📺</div>
+                    <h3 className={styles.emptyTitle}>No watchstreams yet</h3>
+                    <p className={styles.emptyText}>
+                        Create your first watchstream to start tracking movies
+                    </p>
+                    <Button onClick={() => setShowCreateModal(true)}>
+                        Create Watchstream
+                    </Button>
                 </div>
             )}
 

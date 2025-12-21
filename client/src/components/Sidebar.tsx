@@ -51,50 +51,45 @@ export function Sidebar() {
                 {/* Watchstreams Section */}
                 <div>
                     <div
-                        className={styles.navLink}
+                        className={`${styles.navLink} ${watchstreamsExpanded ? styles.navLinkExpanded : ''}`}
                         onClick={() => setWatchstreamsExpanded(!watchstreamsExpanded)}
                         style={{ cursor: 'pointer', justifyContent: 'space-between' }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
                             <Icon name="airplay" size="medium" />
                             <span>Watchstreams</span>
+                            {watchstreams.length > 0 && (
+                                <span className={styles.badge}>{watchstreams.length}</span>
+                            )}
                         </div>
-                        <Icon name={watchstreamsExpanded ? 'chevron-down' : 'chevron-right'} size="small" />
+                        <Icon name="chevron-down" size="small" className={styles.chevron} />
                     </div>
                     {watchstreamsExpanded && (
-                        <div style={{ marginLeft: 'var(--spacing-lg)', marginTop: 'var(--spacing-sm)' }}>
+                        <div className={styles.watchstreamsList}>
                             {watchstreams.length > 0 ? (
                                 watchstreams.slice(0, 5).map((ws) => (
                                     <Link
                                         key={ws.id}
                                         to={`/watchstreams/${ws.id}`}
-                                        className={styles.subNavLink}
-                                        data-type="watchstream"
+                                        className={styles.watchstreamItem}
                                     >
-                                        {ws.name}
+                                        <Icon name="film" size="small" className={styles.watchstreamIcon} />
+                                        <span className={styles.watchstreamName}>{ws.name}</span>
                                     </Link>
                                 ))
                             ) : (
-                                <div style={{
-                                    padding: 'var(--spacing-sm)',
-                                    fontSize: 'var(--font-size-sm)',
-                                    color: 'var(--color-text-tertiary)'
-                                }}>
-                                    No watchstreams
+                                <div className={styles.emptyState}>
+                                    <Icon name="airplay" size="large" />
+                                    <p>No watchstreams</p>
+                                    <Link to="/watchstreams" className={styles.emptyLink}>Create your first</Link>
                                 </div>
                             )}
-                            <Link
-                                to="/watchstreams"
-                                style={{
-                                    display: 'block',
-                                    padding: 'var(--spacing-sm)',
-                                    fontSize: 'var(--font-size-sm)',
-                                    color: 'var(--color-primary)',
-                                    marginTop: 'var(--spacing-sm)',
-                                }}
-                            >
-                                + View All
-                            </Link>
+                            {watchstreams.length > 0 && (
+                                <Link to="/watchstreams" className={styles.viewAllLink}>
+                                    View All Watchstreams
+                                    <Icon name="chevron-right" size="small" />
+                                </Link>
+                            )}
                         </div>
                     )}
                 </div>
@@ -102,50 +97,52 @@ export function Sidebar() {
                 {/* Circles Section */}
                 <div>
                     <div
-                        className={styles.navLink}
+                        className={`${styles.navLink} ${circlesExpanded ? styles.navLinkExpanded : ''}`}
                         onClick={() => setCirclesExpanded(!circlesExpanded)}
                         style={{ cursor: 'pointer', justifyContent: 'space-between' }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
                             <Icon name="users-group" size="medium" />
                             <span>Circles</span>
+                            {[...circles.owned, ...circles.member].length > 0 && (
+                                <span className={styles.badge}>{[...circles.owned, ...circles.member].length}</span>
+                            )}
                         </div>
-                        <Icon name={circlesExpanded ? 'chevron-down' : 'chevron-right'} size="small" />
+                        <Icon name="chevron-down" size="small" className={styles.chevron} />
                     </div>
                     {circlesExpanded && (
-                        <div style={{ marginLeft: 'var(--spacing-lg)', marginTop: 'var(--spacing-sm)' }}>
+                        <div className={styles.circlesList}>
                             {[...circles.owned, ...circles.member].length > 0 ? (
                                 [...circles.owned, ...circles.member].slice(0, 5).map((circle) => (
                                     <Link
                                         key={circle.id}
                                         to={`/circles/${circle.id}`}
-                                        className={styles.subNavLink}
-                                        data-type="circle"
+                                        className={styles.circleItem}
                                     >
-                                        {circle.name}
+                                        <div className={styles.circleIcon}>
+                                            {circle.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className={styles.circleInfo}>
+                                            <div className={styles.circleName}>{circle.name}</div>
+                                            <div className={styles.circleMembers}>
+                                                {circle.memberCount || 1} {(circle.memberCount || 1) === 1 ? 'member' : 'members'}
+                                            </div>
+                                        </div>
                                     </Link>
                                 ))
                             ) : (
-                                <div style={{
-                                    padding: 'var(--spacing-sm)',
-                                    fontSize: 'var(--font-size-sm)',
-                                    color: 'var(--color-text-tertiary)'
-                                }}>
-                                    No circles
+                                <div className={styles.emptyState}>
+                                    <Icon name="users-group" size="large" />
+                                    <p>No circles yet</p>
+                                    <Link to="/circles" className={styles.emptyLink}>Create your first circle</Link>
                                 </div>
                             )}
-                            <Link
-                                to="/circles"
-                                style={{
-                                    display: 'block',
-                                    padding: 'var(--spacing-sm)',
-                                    fontSize: 'var(--font-size-sm)',
-                                    color: 'var(--color-primary)',
-                                    marginTop: 'var(--spacing-sm)',
-                                }}
-                            >
-                                + View All
-                            </Link>
+                            {[...circles.owned, ...circles.member].length > 0 && (
+                                <Link to="/circles" className={styles.viewAllLink}>
+                                    View All Circles
+                                    <Icon name="chevron-right" size="small" />
+                                </Link>
+                            )}
                         </div>
                     )}
                 </div>

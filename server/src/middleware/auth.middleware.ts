@@ -6,18 +6,21 @@ export async function authMiddleware(c: Context, next: Next) {
     const sessionCookie = getCookie(c, 'session');
 
     if (!sessionCookie) {
+        console.log('--- Auth Middleware: No session cookie found ---');
         return c.json({ error: 'Unauthorized' }, 401);
     }
 
     try {
         // Parse session data
         const session: AuthSession = JSON.parse(decodeURIComponent(sessionCookie));
+        console.log('--- Auth Middleware: Valid session for', session.email, '---');
 
         // Attach user to context
-        c.set('user', session);
+        (c as any).set('user', session);
 
         await next();
     } catch (error) {
+        console.error('--- Auth Middleware: Error parsing session cookie ---', error);
         return c.json({ error: 'Invalid session' }, 401);
     }
 }

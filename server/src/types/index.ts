@@ -53,11 +53,17 @@ export interface Watchstream {
     updatedAt: Date;
 }
 
+export interface StreamingPlatform {
+    name: string;
+    logo?: string;
+}
+
 export interface WatchstreamMovie {
     id: number;
     watchstreamId: number;
     movieTmdbId: number;
     watchStatus: 'backlog' | 'watched';
+    streamingPlatforms?: StreamingPlatform[];
     addedAt: Date;
 }
 
@@ -78,6 +84,16 @@ export interface CircleMember {
     invitedBy: number;
     invitedAt: Date;
     joinedAt?: Date;
+}
+
+export interface CircleMovie {
+    id: number;
+    circleId: number;
+    movieTmdbId: number;
+    addedBy: number;
+    recommendation?: string;
+    streamingPlatforms?: StreamingPlatform[];
+    addedAt: Date;
 }
 
 export interface AuthSession {

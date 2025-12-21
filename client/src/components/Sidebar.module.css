@@ -84,6 +84,14 @@
     height: 80%;
 }
 
+.chevron {
+    transition: transform var(--transition-base);
+}
+
+.navLinkExpanded .chevron {
+    transform: rotate(180deg);
+}
+
 .subNavLink {
     text-decoration: none;
     display: block;
@@ -106,60 +114,6 @@
     opacity: 0;
     transition: opacity var(--transition-fast);
 }
-
-/* Watchstream theme - Blue */
-.subNavLink[data-type="watchstream"]::before {
-    color: var(--color-watchstream);
-}
-
-.subNavLink[data-type="watchstream"]:hover {
-    background: var(--color-watchstream-light);
-    color: var(--color-text-primary);
-    transform: translateX(4px);
-    padding-left: calc(var(--spacing-lg) + var(--spacing-lg));
-}
-
-.subNavLink[data-type="watchstream"]:hover::before {
-    opacity: 1;
-}
-
-.subNavLink[data-type="watchstream"].active {
-    background: var(--color-watchstream-medium);
-    color: var(--color-watchstream);
-    font-weight: var(--font-weight-medium);
-}
-
-.subNavLink[data-type="watchstream"].active::before {
-    opacity: 1;
-}
-
-/* Circle theme - Orange */
-.subNavLink[data-type="circle"]::before {
-    color: var(--color-circle);
-}
-
-.subNavLink[data-type="circle"]:hover {
-    background: var(--color-circle-light);
-    color: var(--color-text-primary);
-    transform: translateX(4px);
-    padding-left: calc(var(--spacing-lg) + var(--spacing-lg));
-}
-
-.subNavLink[data-type="circle"]:hover::before {
-    opacity: 1;
-}
-
-.subNavLink[data-type="circle"].active {
-    background: var(--color-circle-medium);
-    color: var(--color-circle);
-    font-weight: var(--font-weight-medium);
-}
-
-.subNavLink[data-type="circle"].active::before {
-    opacity: 1;
-}
-
-/* Default hover/active (fallback for items without data-type) */
 
 .subNavLink:hover {
     background: rgba(139, 92, 246, 0.1);
@@ -226,4 +180,168 @@
 
 .logoutButton {
     width: 100%;
+}
+
+/* Badge */
+.badge {
+    background: var(--gradient-primary);
+    color: white;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Circles List */
+.circlesList {
+    margin-left: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.circleItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid transparent;
+}
+
+.circleItem:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateX(4px);
+}
+
+.circleIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-weight-bold);
+    color: white;
+    font-size: var(--font-size-md);
+    flex-shrink: 0;
+}
+
+.circleInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.circleName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.circleMembers {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: 2px;
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-xl) var(--spacing-md);
+    text-align: center;
+    color: var(--color-text-tertiary);
+    gap: var(--spacing-sm);
+}
+
+.emptyState p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+.emptyLink {
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
+    text-decoration: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-primary);
+    transition: all var(--transition-fast);
+}
+
+.emptyLink:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.viewAllLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.viewAllLink:hover {
+    background: rgba(139, 92, 246, 0.15);
+    transform: translateX(2px);
+}
+
+/* Watchstreams List */
+.watchstreamsList {
+    margin-left: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.watchstreamItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid transparent;
+}
+
+.watchstreamItem:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateX(4px);
+}
+
+.watchstreamIcon {
+    color: var(--color-text-tertiary);
+    flex-shrink: 0;
+}
+
+.watchstreamName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

@@ -1,0 +1,136 @@
+.header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-lg) var(--spacing-2xl);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2xl);
+}
+
+.centerSection {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    margin: 0;
+}
+
+.userSection {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+.logoLink {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    text-decoration: none;
+    transition: opacity var(--transition-fast);
+}
+
+.logoLink:hover {
+    opacity: 0.8;
+}
+
+.logo {
+    height: 48px;
+    width: auto;
+    border-radius: var(--radius-md);
+    object-fit: contain;
+}
+
+.logoText {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+/* Mode Tabs */
+.modeTabs {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.modeTab,
+.modeTabActive {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-md);
+}
+
+.modeTab:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-hover);
+}
+
+.modeTabActive {
+    color: var(--color-primary);
+    background: var(--color-bg-hover);
+}
+
+.modeBadge {
+    background: var(--gradient-primary);
+    color: white;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    min-width: 24px;
+    text-align: center;
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.userName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.userEmail {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-border);
+}
+
+.logoutButton {
+    padding: var(--spacing-sm);
+    color: var(--color-text-secondary);
+}
+
+.logoutButton:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-hover);
+}

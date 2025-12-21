@@ -194,7 +194,7 @@ export class CircleRepository {
      * Get all movies in a circle's watchstream
      */
     async getCircleMovies(circleId: number) {
-        return prisma.circleMovie.findMany({
+        const circleMovies = await prisma.circleMovie.findMany({
             where: { circleId },
             include: {
                 movie: true,
@@ -209,18 +209,29 @@ export class CircleRepository {
             },
             orderBy: { addedAt: 'desc' },
         });
+
+        // Transform to flatten movie data
+        return circleMovies.map(cm => ({
+            ...cm.movie,
+            streamingPlatforms: cm.streamingPlatforms,
+            recommendation: cm.recommendation,
+            addedAt: cm.addedAt,
+            addedBy: cm.user,
+        }));
     }
 
     /**
      * Add movie to circle watchstream
      */
-    async addMovieToCircle(circleId: number, movieTmdbId: number, userId: number) {
+    async addMovieToCircle(circleId: number, movieTmdbId: number, userId: number, recommendation?: string, streamingPlatforms?: any) {
         try {
             return await prisma.circleMovie.create({
                 data: {
                     circleId,
                     movieTmdbId,
                     addedBy: userId,
+                    recommendation,
+                    streamingPlatforms: streamingPlatforms || null,
                 },
             });
         } catch (error: any) {

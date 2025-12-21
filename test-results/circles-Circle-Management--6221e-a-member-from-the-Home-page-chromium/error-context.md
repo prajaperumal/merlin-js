@@ -1,0 +1,49 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Merlin Merlin" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Merlin" [ref=e7]
+        - generic [ref=e8]: Merlin
+      - generic [ref=e9]:
+        - button "Discover" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+          - generic [ref=e14]: Discover
+        - button "Watchstreams" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - generic [ref=e19]: Watchstreams
+    - generic [ref=e22]:
+      - img [ref=e23]
+      - textbox "Search for movies..." [ref=e25]
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e28]: Test User
+        - generic [ref=e29]: test-h7g7mo@example.com
+      - img "Test User" [ref=e30]
+      - button [ref=e31] [cursor=pointer]:
+        - img [ref=e32]
+  - main [ref=e34]:
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - button "All Circles" [ref=e39] [cursor=pointer]
+          - button "Invite Circle 1766356515516" [active] [ref=e40] [cursor=pointer]
+        - generic [ref=e41]:
+          - generic [ref=e42]: 🎬
+          - heading "No movies yet" [level=3] [ref=e43]
+          - paragraph [ref=e44]: Join or create circles to see movie recommendations
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - img [ref=e47]
+          - generic [ref=e49]: Members
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - img "Test User" [ref=e53] [cursor=pointer]
+            - img [ref=e55]
+          - generic [ref=e57]: Test
+        - button "Invite member" [ref=e58] [cursor=pointer]:
+          - img [ref=e59]
+```

@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { setCookie, deleteCookie } from 'hono/cookie';
 import { AuthService } from '../services/auth.service.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
+import { UserRepository } from '../repositories/user.repository.js';
 import type { AuthSession } from '../types/index.js';
 
 const auth = new Hono();
@@ -22,7 +23,9 @@ auth.post('/google/callback', async (c) => {
     }
 
     try {
+        console.log('--- Google Callback Start ---');
         const user = await authService.authenticateWithCode(code);
+        console.log('User authenticated:', user.email);
 
         // Create session
         const session: AuthSession = {
@@ -33,7 +36,8 @@ auth.post('/google/callback', async (c) => {
         };
 
         // Set session cookie
-        setCookie(c, 'session', encodeURIComponent(JSON.stringify(session)), {
+        const cookieValue = encodeURIComponent(JSON.stringify(session));
+        setCookie(c, 'session', cookieValue, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'Lax',
@@ -41,23 +45,38 @@ auth.post('/google/callback', async (c) => {
             path: '/',
         });
 
+        console.log('Session cookie set for user:', user.email);
+        console.log('--- Google Callback Success ---');
+
         return c.json({ user });
     } catch (error) {
-        console.error('Auth error:', error);
-        return c.json({ error: 'Authentication failed' }, 401);
+        console.error('--- Google Callback Error ---');
+        console.error('Auth error detail:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+        return c.json({ error: errorMessage }, 401);
     }
 });
 
 // Get current user
 auth.get('/me', authMiddleware, async (c) => {
-    const session = c.get('user') as AuthSession;
-    const user = await authService.getUserById(session.userId);
+    try {
+        const session = (c as any).get('user') as AuthSession;
+        console.log('--- auth/me: Checking user in DB for', session.email, '---');
 
-    if (!user) {
-        return c.json({ error: 'User not found' }, 404);
+        const user = await authService.getUserById(session.userId);
+
+        if (!user) {
+            console.error('--- auth/me: User not found in DB for session ID:', session.userId, '---');
+            return c.json({ error: 'User not found' }, 404);
+        }
+
+        console.log('--- auth/me: User found, returning details ---');
+        return c.json({ user });
+    } catch (error) {
+        console.error('--- auth/me: Unexpected error ---', error);
+        const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+        return c.json({ error: errorMessage }, 500);
     }
-
-    return c.json({ user });
 });
 
 // Logout
@@ -65,5 +84,38 @@ auth.post('/logout', (c) => {
     deleteCookie(c, 'session');
     return c.json({ success: true });
 });
+
+// Test-only login (to bypass Google OAuth during E2E tests)
+if (process.env.NODE_ENV !== 'production') {
+    auth.post('/test-login', async (c) => {
+        const { email, name } = await c.req.json();
+
+        // Mock user data
+        const user = await new UserRepository().createOrUpdateUser({
+            googleId: `test-${email}`,
+            email: email,
+            name: name || 'Test User',
+            picture: 'https://via.placeholder.com/150',
+        });
+
+        const session: AuthSession = {
+            userId: user.id,
+            email: user.email,
+            name: user.name,
+            picture: user.picture,
+        };
+
+        const cookieValue = encodeURIComponent(JSON.stringify(session));
+        setCookie(c, 'session', cookieValue, {
+            httpOnly: true,
+            secure: false, // development/test
+            sameSite: 'Lax',
+            maxAge: 60 * 60 * 24 * 30,
+            path: '/',
+        });
+
+        return c.json({ user });
+    });
+}
 
 export default auth;

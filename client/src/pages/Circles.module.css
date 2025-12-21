@@ -1,57 +1,156 @@
 .circles {
     min-height: 100vh;
-    padding: var(--spacing-2xl);
+    padding: 0;
 }
 
+/* Header */
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--spacing-2xl);
+    justify-content: space-between;
+    padding: var(--spacing-2xl) var(--spacing-2xl) var(--spacing-xl);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.headerContent {
+    flex: 1;
 }
 
 .title {
     font-size: var(--font-size-3xl);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-xs) 0;
 }
 
-.section {
-    margin-bottom: var(--spacing-2xl);
+.stats {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
 }
 
-.sectionTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    margin-bottom: var(--spacing-lg);
+.statItem {
+    font-weight: var(--font-weight-medium);
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-}
-
-.empty {
-    text-align: center;
-    padding: var(--spacing-2xl);
+.statDivider {
     color: var(--color-text-tertiary);
 }
 
-/* Circle theme - Orange */
-[data-theme="circle"] .title {
-    background: linear-gradient(135deg, var(--color-circle), var(--color-circle-hover));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+/* Circles Grid */
+.circlesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl) var(--spacing-2xl) var(--spacing-3xl);
 }
 
-[data-theme="circle"] .createButton {
-    background: var(--color-circle);
+.circleCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.circleCard:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.circleCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.circleAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
     color: white;
-    box-shadow: 0 4px 12px rgba(var(--color-circle-rgb), 0.3);
 }
 
-[data-theme="circle"] .createButton:hover {
-    background: var(--color-circle-hover);
-    box-shadow: 0 6px 16px rgba(var(--color-circle-rgb), 0.4);
+.ownerBadge {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--color-primary);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.circleCardBody {
+    flex: 1;
+}
+
+.circleCardTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.circleCardDescription {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.circleCardFooter {
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+}
+
+.memberCount {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+}
+
+/* Empty State */
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+    text-align: center;
+    min-height: 400px;
+}
+
+.emptyIcon {
+    font-size: 64px;
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.4;
+}
+
+.emptyTitle {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.emptyText {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--spacing-xl) 0;
+    max-width: 400px;
 }

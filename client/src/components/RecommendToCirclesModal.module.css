@@ -1,0 +1,191 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.formGroup label {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+}
+
+.circlesList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-md);
+    max-height: 300px;
+    overflow-y: auto;
+    padding: var(--spacing-xs);
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.circlesList::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, and Opera */
+}
+
+.circleOption {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg) var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+}
+
+.circleOption:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.circleOptionSelected {
+    background: rgba(var(--color-primary-rgb), 0.15);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.circleOptionSelected:hover {
+    background: rgba(var(--color-primary-rgb), 0.2);
+    border-color: var(--color-primary);
+}
+
+.circleIcon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.circleOptionSelected .circleIcon {
+    background: var(--color-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.circleName {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.checkBadge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePop {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+.circleOptionDisabled {
+    cursor: default;
+    opacity: 0.8;
+}
+
+.circleOptionDisabled:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.circleOptionDisabled.circleOptionSelected {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+}
+
+.alreadyPresentText {
+    font-size: 10px;
+    color: var(--color-text-tertiary);
+    margin-top: -4px;
+    font-weight: 500;
+}
+
+.checkBadgeDisabled {
+    background: var(--color-text-tertiary);
+}
+
+.ownerBadge {
+    position: absolute;
+    bottom: var(--spacing-xs);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-tertiary);
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.noCircles {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.textarea {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+}
+
+.textarea:focus {
+    border-color: var(--color-primary);
+}
+
+.textarea::placeholder {
+    color: var(--color-text-tertiary);
+}

@@ -87,7 +87,7 @@ watchstreams.get('/:id/movies', async (c) => {
 // Add movie to watchstream
 watchstreams.post('/:id/movies', async (c) => {
     const id = parseInt(c.req.param('id'));
-    const { movieTmdbId, watchStatus = 'backlog' } = await c.req.json();
+    const { movieTmdbId, watchStatus = 'backlog', streamingPlatforms } = await c.req.json();
 
     if (!movieTmdbId) {
         return c.json({ error: 'Movie ID is required' }, 400);
@@ -102,7 +102,7 @@ watchstreams.post('/:id/movies', async (c) => {
         }
     }
 
-    const result = await watchstreamRepo.addMovie(id, movieTmdbId, watchStatus);
+    const result = await watchstreamRepo.addMovie(id, movieTmdbId, watchStatus, streamingPlatforms);
 
     if (!result) {
         return c.json({ error: 'Movie already in watchstream' }, 409);
@@ -124,13 +124,13 @@ watchstreams.delete('/:id/movies/:movieId', async (c) => {
 watchstreams.put('/:id/movies/:movieId', async (c) => {
     const id = parseInt(c.req.param('id'));
     const movieId = parseInt(c.req.param('movieId'));
-    const { watchStatus } = await c.req.json();
+    const { watchStatus, streamingPlatforms } = await c.req.json();
 
     if (!watchStatus) {
         return c.json({ error: 'Watch status is required' }, 400);
     }
 
-    await watchstreamRepo.updateMovieStatus(id, movieId, watchStatus);
+    await watchstreamRepo.updateMovieStatus(id, movieId, watchStatus, streamingPlatforms);
     return c.json({ success: true });
 });
 

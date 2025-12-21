@@ -1,4 +1,4 @@
-import type { User, Movie, Watchstream, Circle, CircleMember, CircleInvitation } from '../types';
+import type { User, Movie, Watchstream, Circle, CircleMember, CircleInvitation, StreamingPlatform } from '../types';
 
 const API_BASE = '/api';
 
@@ -98,11 +98,11 @@ class ApiService {
         return data.movies;
     }
 
-    async addMovieToWatchstream(watchstreamId: number, movieTmdbId: number, watchStatus: string): Promise<void> {
+    async addMovieToWatchstream(watchstreamId: number, movieTmdbId: number, watchStatus: string, streamingPlatforms?: StreamingPlatform[]): Promise<void> {
         const res = await fetch(`${API_BASE}/watchstreams/${watchstreamId}/movies`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ movieTmdbId, watchStatus }),
+            body: JSON.stringify({ movieTmdbId, watchStatus, streamingPlatforms }),
             credentials: 'include',
         });
         if (!res.ok) {
@@ -118,11 +118,11 @@ class ApiService {
         });
     }
 
-    async updateMovieStatus(watchstreamId: number, movieTmdbId: number, watchStatus: string): Promise<void> {
+    async updateMovieStatus(watchstreamId: number, movieTmdbId: number, watchStatus: string, streamingPlatforms?: StreamingPlatform[]): Promise<void> {
         await fetch(`${API_BASE}/watchstreams/${watchstreamId}/movies/${movieTmdbId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ watchStatus }),
+            body: JSON.stringify({ watchStatus, streamingPlatforms }),
             credentials: 'include',
         });
     }
@@ -200,11 +200,11 @@ class ApiService {
         return data.movies;
     }
 
-    async addMovieToCircle(circleId: number, movieTmdbId: number): Promise<void> {
+    async addMovieToCircle(circleId: number, movieTmdbId: number, recommendation?: string): Promise<void> {
         const res = await fetch(`${API_BASE}/circles/${circleId}/movies`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ movieTmdbId }),
+            body: JSON.stringify({ movieTmdbId, recommendation }),
             credentials: 'include',
         });
         if (!res.ok) {

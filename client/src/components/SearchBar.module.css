@@ -1,11 +1,14 @@
 .searchBar {
     position: relative;
     width: 100%;
-    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .inputWrapper {
     position: relative;
+    flex-shrink: 0;
 }
 
 .searchIcon {
@@ -14,28 +17,34 @@
     top: 50%;
     transform: translateY(-50%);
     color: var(--color-text-tertiary);
-    font-size: var(--font-size-lg);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .input {
     width: 100%;
     padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 3rem;
-    font-size: var(--font-size-lg);
-    border-radius: var(--radius-xl);
+    font-size: var(--font-size-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
 }
 
 .suggestions {
-    position: absolute;
-    top: calc(100% + var(--spacing-sm));
-    left: 0;
-    right: 0;
-    background: var(--color-bg-secondary);
+    flex: 1;
+    margin-top: var(--spacing-md);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    max-height: 400px;
     overflow-y: auto;
-    box-shadow: var(--shadow-lg);
-    z-index: 100;
+    min-height: 0;
 }
 
 .suggestion {

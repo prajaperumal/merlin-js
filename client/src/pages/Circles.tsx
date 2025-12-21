@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Circle } from '../types';
 import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import styles from './Circles.module.css';
@@ -33,63 +32,66 @@ export function Circles() {
         loadCircles();
     };
 
+    const allCircles = [...ownedCircles.map(c => ({ ...c, isOwner: true })), ...memberCircles.map(c => ({ ...c, isOwner: false }))];
+
     return (
-        <div className={styles.circles} data-theme="circle">
+        <div className={styles.circles}>
             <div className={styles.header}>
-                <h1 className={styles.title}>My Circles</h1>
-                <Button onClick={() => setShowCreateModal(true)} className={styles.createButton}>Create Circle</Button>
-            </div>
-
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>Owned Circles</h2>
-                {ownedCircles.length > 0 ? (
-                    <div className={styles.grid}>
-                        {ownedCircles.map((circle) => (
-                            <Link key={circle.id} to={`/circles/${circle.id}`} style={{ textDecoration: 'none' }}>
-                                <Card clickable>
-                                    <h3>{circle.name}</h3>
-                                    {circle.description && (
-                                        <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-sm)' }}>
-                                            {circle.description}
-                                        </p>
-                                    )}
-                                    <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-tertiary)', marginTop: 'var(--spacing-sm)' }}>
-                                        {circle.memberCount} members
-                                    </p>
-                                </Card>
-                            </Link>
-                        ))}
+                <div className={styles.headerContent}>
+                    <h1 className={styles.title}>Circles</h1>
+                    <div className={styles.stats}>
+                        <span className={styles.statItem}>{allCircles.length} total</span>
+                        <span className={styles.statDivider}>·</span>
+                        <span className={styles.statItem}>{ownedCircles.length} owned</span>
+                        <span className={styles.statDivider}>·</span>
+                        <span className={styles.statItem}>{memberCircles.length} joined</span>
                     </div>
-                ) : (
-                    <div className={styles.empty}>
-                        <p>No circles owned yet</p>
-                    </div>
+                </div>
+                {allCircles.length > 0 && (
+                    <Button onClick={() => setShowCreateModal(true)} variant="primary">
+                        Create Circle
+                    </Button>
                 )}
             </div>
 
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>Member Circles</h2>
-                {memberCircles.length > 0 ? (
-                    <div className={styles.grid}>
-                        {memberCircles.map((circle) => (
-                            <Link key={circle.id} to={`/circles/${circle.id}`} style={{ textDecoration: 'none' }}>
-                                <Card clickable>
-                                    <h3>{circle.name}</h3>
-                                    {circle.description && (
-                                        <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-sm)' }}>
-                                            {circle.description}
-                                        </p>
-                                    )}
-                                </Card>
-                            </Link>
-                        ))}
-                    </div>
-                ) : (
-                    <div className={styles.empty}>
-                        <p>Not a member of any circles yet</p>
-                    </div>
-                )}
-            </div>
+            {allCircles.length > 0 ? (
+                <div className={styles.circlesGrid}>
+                    {allCircles.map((circle) => (
+                        <Link key={circle.id} to={`/circles/${circle.id}`} className={styles.circleCard}>
+                            <div className={styles.circleCardHeader}>
+                                <div className={styles.circleAvatar}>
+                                    {circle.name.charAt(0).toUpperCase()}
+                                </div>
+                                {circle.isOwner && (
+                                    <div className={styles.ownerBadge}>Owner</div>
+                                )}
+                            </div>
+                            <div className={styles.circleCardBody}>
+                                <h3 className={styles.circleCardTitle}>{circle.name}</h3>
+                                {circle.description && (
+                                    <p className={styles.circleCardDescription}>{circle.description}</p>
+                                )}
+                            </div>
+                            <div className={styles.circleCardFooter}>
+                                <span className={styles.memberCount}>
+                                    {circle.memberCount || 1} {(circle.memberCount || 1) === 1 ? 'member' : 'members'}
+                                </span>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            ) : (
+                <div className={styles.emptyState}>
+                    <div className={styles.emptyIcon}>🎬</div>
+                    <h3 className={styles.emptyTitle}>No circles yet</h3>
+                    <p className={styles.emptyText}>
+                        Create your first circle to start sharing movie recommendations with friends
+                    </p>
+                    <Button onClick={() => setShowCreateModal(true)}>
+                        Create Your First Circle
+                    </Button>
+                </div>
+            )}
 
             <Modal
                 isOpen={showCreateModal}

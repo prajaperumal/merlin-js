@@ -1,81 +1,267 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
-import { Movie, Watchstream } from '../types';
-import { SearchBar } from '../components/SearchBar';
+import { Movie, StreamingPlatform, Circle, Watchstream, CircleMember } from '../types';
 import { Button } from '../components/ui/Button';
+import { Icon } from '../components/ui/Icon';
+import { Card } from '../components/ui/Card';
 import { Modal } from '../components/ui/Modal';
-import { Input } from '../components/ui/Input';
+import { SearchBar } from '../components/SearchBar';
+import { StreamingPlatformBadge } from '../components/StreamingPlatformBadge';
+import { AddToWatchstreamModal } from '../components/AddToWatchstreamModal';
+import { RecommendToCirclesModal } from '../components/RecommendToCirclesModal';
 import styles from './Home.module.css';
 
-export function Home() {
+type AppMode = 'discover' | 'watchstream';
+
+interface CircleMovie extends Movie {
+    circleName?: string;
+    circleId?: number;
+    recommender?: {
+        name: string | null;
+        picture: string | null;
+    };
+    recommendation?: string;
+}
+
+interface CircleWithMembers extends Circle {
+    members?: CircleMember[];
+}
+
+interface HomeProps {
+    mode: AppMode;
+    onModeChange: (mode: AppMode) => void;
+    onCountsChange: (discoverCount: number, watchstreamsCount: number) => void;
+}
+
+export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: HomeProps) {
     const { user, login } = useAuth();
-    const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-    const [showAddModal, setShowAddModal] = useState(false);
+
+    // Discover mode state
+    const [circleMovies, setCircleMovies] = useState<CircleMovie[]>([]);
+    const [circles, setCircles] = useState<CircleWithMembers[]>([]);
+    const [selectedCircleFilter, setSelectedCircleFilter] = useState<number | null>(null);
+
+    // Watchstream mode state
     const [watchstreams, setWatchstreams] = useState<Watchstream[]>([]);
-    const [selectedWatchstream, setSelectedWatchstream] = useState<number | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState<'backlog' | 'watched'>('backlog');
-    const [showCreateWatchstream, setShowCreateWatchstream] = useState(false);
-    const [newWatchstreamName, setNewWatchstreamName] = useState('');
-    const [isAdding, setIsAdding] = useState(false);
-    const [error, setError] = useState('');
+    const [selectedWatchstreamId, setSelectedWatchstreamId] = useState<number | null>(null);
+    const [backlogMovies, setBacklogMovies] = useState<Movie[]>([]);
+    const [watchedMovies, setWatchedMovies] = useState<Movie[]>([]);
+    const [watchstreamView, setWatchstreamView] = useState<'backlog' | 'watched'>('backlog');
+    const [platformFilter, setPlatformFilter] = useState<string | null>(null);
+
+    // Modals
+    const [showAddMovieModal, setShowAddMovieModal] = useState(false);
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    const [showRemoveMemberModal, setShowRemoveMemberModal] = useState(false);
+    const [selectedMemberToRemove, setSelectedMemberToRemove] = useState<{ id: number; name: string } | null>(null);
+    const [newMemberEmail, setNewMemberEmail] = useState('');
+    const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+    const [showWatchstreamModal, setShowWatchstreamModal] = useState(false);
+    const [showCirclesModal, setShowCirclesModal] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            loadData();
+        }
+    }, [user, mode]);
+
+    useEffect(() => {
+        if (selectedWatchstreamId && mode === 'watchstream') {
+            loadWatchstreamMovies();
+        }
+    }, [selectedWatchstreamId]);
+
+    useEffect(() => {
+        // Update counts in header
+        onCountsChange(circleMovies.length, watchstreams.length);
+    }, [circleMovies.length, watchstreams.length, onCountsChange]);
+
+    const loadData = async () => {
+        try {
+            if (mode === 'discover') {
+                await loadCircleMovies();
+            } else {
+                await loadWatchstreams();
+            }
+        } catch (error) {
+            console.error('Failed to load data:', error);
+        }
+    };
+
+    const loadCircleMovies = async () => {
+        try {
+            const circlesData = await api.getCircles();
+            const allCircles = [...circlesData.owned, ...circlesData.member];
+
+            // Load movies and member details from all circles
+            const allMovies: CircleMovie[] = [];
+            const circlesWithMembers: CircleWithMembers[] = [];
+
+            for (const circle of allCircles) {
+                // Load movies
+                const movies = await api.getCircleMovies(circle.id);
+                const moviesWithCircle = movies.map((m: any) => ({
+                    ...m,
+                    circleName: circle.name,
+                    circleId: circle.id,
+                    recommender: m.addedBy,
+                }));
+                allMovies.push(...moviesWithCircle);
+
+                // Load member details
+                const { circle: circleDetails } = await api.getCircleDetails(circle.id);
+                circlesWithMembers.push({
+                    ...circle,
+                    members: circleDetails.members
+                });
+            }
+
+            setCircles(circlesWithMembers);
+            setCircleMovies(allMovies);
+        } catch (error) {
+            console.error('Failed to load circle movies:', error);
+        }
+    };
 
     const loadWatchstreams = async () => {
         try {
-            const data = await api.getWatchstreams();
-            setWatchstreams(data);
-        } catch (err) {
-            console.error('Failed to load watchstreams:', err);
+            const watchstreamList = await api.getWatchstreams();
+            setWatchstreams(watchstreamList);
+
+            // Auto-select first watchstream if none selected
+            if (watchstreamList.length > 0 && !selectedWatchstreamId) {
+                setSelectedWatchstreamId(watchstreamList[0].id);
+            }
+        } catch (error) {
+            console.error('Failed to load watchstreams:', error);
+        }
+    };
+
+    const loadWatchstreamMovies = async () => {
+        if (!selectedWatchstreamId) return;
+
+        try {
+            const [backlog, watched] = await Promise.all([
+                api.getWatchstreamMovies(selectedWatchstreamId, 'backlog'),
+                api.getWatchstreamMovies(selectedWatchstreamId, 'watched'),
+            ]);
+            setBacklogMovies(backlog);
+            setWatchedMovies(watched);
+        } catch (error) {
+            console.error('Failed to load watchstream movies:', error);
+        }
+    };
+
+    const handleAddMovieToWatchstream = async (movie: Movie, streamingPlatforms?: StreamingPlatform[]) => {
+        if (!selectedWatchstreamId) return;
+        try {
+            await api.addMovieToWatchstream(selectedWatchstreamId, movie.tmdbId, watchstreamView, streamingPlatforms);
+            setShowAddMovieModal(false);
+            loadWatchstreamMovies();
+        } catch (error: any) {
+            console.error('Failed to add movie:', error);
+            alert(error.message || 'Failed to add movie');
+        }
+    };
+
+    const handleMarkAsWatched = async (movieTmdbId: number) => {
+        if (!selectedWatchstreamId) return;
+        try {
+            const movie = backlogMovies.find(m => m.tmdbId === movieTmdbId);
+            await api.updateMovieStatus(selectedWatchstreamId, movieTmdbId, 'watched', movie?.streamingPlatforms);
+            setBacklogMovies(prev => prev.filter(m => m.tmdbId !== movieTmdbId));
+            if (movie) {
+                setWatchedMovies(prev => [movie, ...prev]);
+            }
+        } catch (error) {
+            console.error('Failed to update movie status:', error);
+        }
+    };
+
+    const handleAddMember = async () => {
+        if (!selectedCircleFilter || !newMemberEmail.trim()) return;
+        try {
+            await api.inviteMember(selectedCircleFilter, newMemberEmail.trim());
+            setShowAddMemberModal(false);
+            setNewMemberEmail('');
+            alert('Invitation sent successfully!');
+            // Reload circle data to get updated members
+            loadCircleMovies();
+        } catch (error: any) {
+            console.error('Failed to invite member:', error);
+            alert(error.message || 'Failed to invite member');
+        }
+    };
+
+    const handleRemoveMember = async () => {
+        if (!selectedCircleFilter || !selectedMemberToRemove) return;
+        try {
+            await api.removeMember(selectedCircleFilter, selectedMemberToRemove.id);
+            setShowRemoveMemberModal(false);
+            setSelectedMemberToRemove(null);
+            // Reload circle data to get updated members
+            loadCircleMovies();
+        } catch (error: any) {
+            console.error('Failed to remove member:', error);
+            alert(error.message || 'Failed to invite member');
         }
     };
 
     const handleAddToWatchstream = (movie: Movie) => {
         setSelectedMovie(movie);
-        setShowAddModal(true);
-        setSelectedWatchstream(null);
-        setSelectedStatus('backlog');
-        setError('');
-        loadWatchstreams();
+        setShowWatchstreamModal(true);
     };
 
-    const handleCreateWatchstream = async () => {
-        if (!newWatchstreamName.trim()) return;
+    const handleWatchstreamSuccess = () => {
+        setShowWatchstreamModal(false);
+        setSelectedMovie(null);
+    };
 
-        try {
-            const newWatchstream = await api.createWatchstream(newWatchstreamName);
-            setWatchstreams([...watchstreams, newWatchstream]);
-            setSelectedWatchstream(newWatchstream.id);
-            setNewWatchstreamName('');
-            setShowCreateWatchstream(false);
-        } catch (err: any) {
-            setError(err.message || 'Failed to create watchstream');
+    const handleRecommendToCircles = (movie: Movie) => {
+        setSelectedMovie(movie);
+        setShowCirclesModal(true);
+    };
+
+    const handleCirclesSuccess = () => {
+        setShowCirclesModal(false);
+        setSelectedMovie(null);
+    };
+
+    const handlePickRandom = () => {
+        const filteredMovies = platformFilter
+            ? backlogMovies.filter(m => m.streamingPlatforms?.some(p => p.name === platformFilter))
+            : backlogMovies;
+
+        if (filteredMovies.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filteredMovies.length);
+            const randomMovie = filteredMovies[randomIndex];
+            alert(`How about: ${randomMovie.title}${randomMovie.year ? ` (${randomMovie.year})` : ''}?`);
         }
     };
 
-    const handleAddMovie = async () => {
-        if (!selectedMovie || !selectedWatchstream) return;
+    const filteredCircleMovies = selectedCircleFilter
+        ? circleMovies.filter(m => m.circleId === selectedCircleFilter)
+        : circleMovies;
 
-        setIsAdding(true);
-        setError('');
+    const filteredWatchstreamMovies = platformFilter
+        ? (watchstreamView === 'backlog' ? backlogMovies : watchedMovies).filter(
+            m => m.streamingPlatforms?.some(p => p.name === platformFilter)
+        )
+        : (watchstreamView === 'backlog' ? backlogMovies : watchedMovies);
 
-        try {
-            await api.addMovieToWatchstream(selectedWatchstream, selectedMovie.tmdbId, selectedStatus);
-            setShowAddModal(false);
-            setSelectedMovie(null);
-            setSelectedWatchstream(null);
-        } catch (err: any) {
-            setError(err.message || 'Failed to add movie');
-        } finally {
-            setIsAdding(false);
-        }
-    };
+    const allPlatforms = Array.from(
+        new Set(
+            backlogMovies.flatMap(m => m.streamingPlatforms?.map(p => p.name) || [])
+        )
+    );
 
     if (!user) {
         return (
             <div className={styles.home}>
                 <div className={styles.loginPrompt}>
                     <h1 className={styles.title}>Welcome to Merlin</h1>
-                    <p className={styles.subtitle}>Discover and track your favorite movies</p>
+                    <p className={styles.subtitle}>Discover and track movies with friends</p>
                     <Button onClick={login} className={styles.loginButton}>
                         Sign in with Google
                     </Button>
@@ -86,137 +272,453 @@ export function Home() {
 
     return (
         <div className={styles.home}>
-            <div className={styles.hero}>
-                <h1 className={styles.title}>Discover Movies</h1>
-                <p className={styles.subtitle}>Search and add movies to your watchstreams</p>
-            </div>
+            {/* Discover Mode */}
+            {mode === 'discover' && (
+                <div className={styles.discoverLayout}>
+                    <div className={styles.mainContent}>
 
-            <div className={styles.searchSection}>
-                <SearchBar onAddToWatchstream={handleAddToWatchstream} />
-            </div>
-
-            <Modal
-                isOpen={showAddModal}
-                onClose={() => setShowAddModal(false)}
-                title={`Add "${selectedMovie?.title}" to Watchstream`}
-                footer={
-                    <>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleAddMovie}
-                            disabled={!selectedWatchstream || isAdding}
-                        >
-                            {isAdding ? 'Adding...' : 'Add Movie'}
-                        </Button>
-                    </>
-                }
-            >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-                    {/* Watchstream Selection */}
-                    <div>
-                        <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
-                            Select Watchstream
-                        </label>
-                        {watchstreams.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
-                                {watchstreams.map((ws) => (
-                                    <div
-                                        key={ws.id}
-                                        onClick={() => setSelectedWatchstream(ws.id)}
-                                        style={{
-                                            padding: 'var(--spacing-md)',
-                                            border: `2px solid ${selectedWatchstream === ws.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                            borderRadius: 'var(--radius-md)',
-                                            cursor: 'pointer',
-                                            transition: 'all var(--transition-fast)',
-                                            backgroundColor: selectedWatchstream === ws.id ? 'rgba(var(--color-primary-rgb), 0.1)' : 'transparent',
-                                        }}
+                        {/* Circle Filters */}
+                        {circles.length > 0 && (
+                            <div className={styles.filters}>
+                                <button
+                                    className={selectedCircleFilter === null ? styles.filterActive : styles.filter}
+                                    onClick={() => setSelectedCircleFilter(null)}
+                                >
+                                    All Circles
+                                </button>
+                                {circles.map(circle => (
+                                    <button
+                                        key={circle.id}
+                                        className={selectedCircleFilter === circle.id ? styles.filterActive : styles.filter}
+                                        onClick={() => setSelectedCircleFilter(circle.id)}
                                     >
-                                        {ws.name}
-                                    </div>
+                                        {circle.name}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Movies Grid */}
+                        {filteredCircleMovies.length > 0 ? (
+                            <div className={styles.grid}>
+                                {filteredCircleMovies.map((movie) => (
+                                    <Card key={`${movie.circleId}-${movie.tmdbId}`} className={styles.movieCard}>
+                                        <div className={styles.posterContainer}>
+                                            {movie.posterUrl ? (
+                                                <img src={movie.posterUrl} alt={movie.title} className={styles.poster} />
+                                            ) : (
+                                                <div className={styles.posterPlaceholder}>
+                                                    <Icon name="film" size="large" />
+                                                </div>
+                                            )}
+                                            <div className={styles.circleTag}>{movie.circleName}</div>
+                                            <div className={styles.cardActions}>
+                                                <button
+                                                    className={styles.cardActionButton}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddToWatchstream(movie);
+                                                    }}
+                                                    title="Add to Watchstream"
+                                                >
+                                                    <Icon name="bookmark" size="medium" />
+                                                </button>
+                                                <button
+                                                    className={styles.cardActionButton}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRecommendToCircles(movie);
+                                                    }}
+                                                    title="Recommend to Circles"
+                                                >
+                                                    <Icon name="users" size="medium" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className={styles.movieInfo}>
+                                            <h3 className={styles.movieTitle}>{movie.title}</h3>
+                                            {movie.year && <p className={styles.year}>{movie.year}</p>}
+                                            {movie.recommender && (
+                                                <div className={styles.recommenderAvatar} title={`Recommended by ${movie.recommender.name || 'User'}`}>
+                                                    {movie.recommender.picture ? (
+                                                        <img src={movie.recommender.picture} alt={movie.recommender.name || ''} className={styles.avatarImg} />
+                                                    ) : (
+                                                        <div className={styles.avatarPlaceholder}>
+                                                            {(movie.recommender.name || 'U').charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {movie.recommendation && (
+                                                <p className={styles.recommendation}>"{movie.recommendation}"</p>
+                                            )}
+                                            <div className={styles.movieMeta}>
+                                                {movie.voteAverage && (
+                                                    <div className={styles.rating}>
+                                                        <Icon name="star" size="small" />
+                                                        <span>{movie.voteAverage.toFixed(1)}</span>
+                                                    </div>
+                                                )}
+                                                {movie.streamingPlatforms && movie.streamingPlatforms.length > 0 && (
+                                                    <StreamingPlatformBadge platforms={movie.streamingPlatforms} size="small" />
+                                                )}
+                                            </div>
+                                        </div>
+                                    </Card>
                                 ))}
                             </div>
                         ) : (
-                            <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                                No watchstreams yet. Create one below.
-                            </p>
-                        )}
-
-                        {!showCreateWatchstream && (
-                            <Button
-                                variant="ghost"
-                                size="small"
-                                onClick={() => setShowCreateWatchstream(true)}
-                                style={{ marginTop: 'var(--spacing-sm)', width: '100%' }}
-                            >
-                                + Create New Watchstream
-                            </Button>
-                        )}
-
-                        {showCreateWatchstream && (
-                            <div style={{ marginTop: 'var(--spacing-md)', display: 'flex', gap: 'var(--spacing-sm)' }}>
-                                <Input
-                                    placeholder="Watchstream name"
-                                    value={newWatchstreamName}
-                                    onChange={(e) => setNewWatchstreamName(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleCreateWatchstream()}
-                                />
-                                <Button size="small" onClick={handleCreateWatchstream}>
-                                    Create
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="small"
-                                    onClick={() => {
-                                        setShowCreateWatchstream(false);
-                                        setNewWatchstreamName('');
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
+                            <div className={styles.empty}>
+                                <div className={styles.emptyIcon}>🎬</div>
+                                <h3 className={styles.emptyTitle}>No movies yet</h3>
+                                <p className={styles.emptyText}>
+                                    Join or create circles to see movie recommendations
+                                </p>
                             </div>
                         )}
                     </div>
 
-                    {/* Status Selection */}
-                    <div>
-                        <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
-                            Watch Status
-                        </label>
-                        <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-                            {(['backlog', 'watched'] as const).map((status) => (
-                                <button
-                                    key={status}
-                                    onClick={() => setSelectedStatus(status)}
-                                    style={{
-                                        flex: 1,
-                                        padding: 'var(--spacing-sm)',
-                                        border: `2px solid ${selectedStatus === status ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                        borderRadius: 'var(--radius-md)',
-                                        cursor: 'pointer',
-                                        transition: 'all var(--transition-fast)',
-                                        backgroundColor: selectedStatus === status ? 'rgba(var(--color-primary-rgb), 0.1)' : 'var(--color-bg-tertiary)',
-                                        color: selectedStatus === status ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                        textTransform: 'capitalize',
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    {status}
-                                </button>
-                            ))}
+                    {/* Members Panel */}
+                    {selectedCircleFilter && circles.find(c => c.id === selectedCircleFilter)?.members && (() => {
+                        const selectedCircle = circles.find(c => c.id === selectedCircleFilter);
+                        const isOwner = selectedCircle?.members?.some(m => m.id === user?.id && m.isOwner);
+                        return (
+                            <div className={styles.membersPanel}>
+                                <div className={styles.membersPanelHeader}>
+                                    <Icon name="users-group" size="small" />
+                                    <span>Members</span>
+                                </div>
+
+                                <div className={styles.memberAvatars}>
+                                    {selectedCircle?.members?.map(member => {
+                                        const firstName = member.name?.split(' ')[0] || 'User';
+                                        const canRemove = isOwner && !member.isOwner && member.id !== user?.id;
+                                        return (
+                                            <div key={member.id} className={styles.memberItem}>
+                                                <div className={styles.memberAvatarContainer}>
+                                                    {member.picture ? (
+                                                        <img
+                                                            src={member.picture}
+                                                            alt={member.name || ''}
+                                                            className={styles.memberAvatar}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.memberAvatarPlaceholder}>
+                                                            {(member.name || 'U').charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                    {member.isOwner && (
+                                                        <div className={styles.ownerIndicator}>
+                                                            <Icon name="crown" size="small" />
+                                                        </div>
+                                                    )}
+                                                    {canRemove && (
+                                                        <button
+                                                            className={styles.removeMemberButton}
+                                                            onClick={() => {
+                                                                setSelectedMemberToRemove({ id: member.id, name: member.name || 'User' });
+                                                                setShowRemoveMemberModal(true);
+                                                            }}
+                                                            title="Remove member"
+                                                        >
+                                                            <Icon name="minus" size="small" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <div className={styles.memberName}>{firstName}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {isOwner && (
+                                    <button
+                                        className={styles.addMemberButton}
+                                        onClick={() => setShowAddMemberModal(true)}
+                                        title="Invite member"
+                                    >
+                                        <Icon name="plus" size="medium" />
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })()}
+                </div>
+            )}
+
+            {/* My Watchstream Mode */}
+            {mode === 'watchstream' && (
+                <div className={styles.content}>
+                    <div className={styles.contentHeader}>
+                        <div>
+                            <h1 className={styles.pageTitle}>Watchstreams</h1>
+                            <p className={styles.pageSubtitle}>
+                                {backlogMovies.length} to watch · {watchedMovies.length} watched
+                            </p>
+                        </div>
+                        <div className={styles.headerActions}>
+                            {backlogMovies.length > 0 && watchstreamView === 'backlog' && (
+                                <Button variant="secondary" onClick={handlePickRandom}>
+                                    Pick Random
+                                </Button>
+                            )}
+                            <Button onClick={() => setShowAddMovieModal(true)}>
+                                <Icon name="plus" size="small" />
+                                Add Movie
+                            </Button>
                         </div>
                     </div>
 
-                    {error && (
-                        <p style={{ color: 'var(--color-error)', fontSize: 'var(--font-size-sm)' }}>
-                            {error}
-                        </p>
+                    {/* Watchstream Selector */}
+                    {watchstreams.length > 0 && (
+                        <div className={styles.filters}>
+                            {watchstreams.map(watchstream => (
+                                <button
+                                    key={watchstream.id}
+                                    className={selectedWatchstreamId === watchstream.id ? styles.filterActive : styles.filter}
+                                    onClick={() => setSelectedWatchstreamId(watchstream.id)}
+                                >
+                                    {watchstream.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Empty State - No Watchstreams */}
+                    {watchstreams.length === 0 ? (
+                        <div className={styles.empty}>
+                            <div className={styles.emptyIcon}>📺</div>
+                            <h3 className={styles.emptyTitle}>No watchstreams yet</h3>
+                            <p className={styles.emptyText}>
+                                Create a watchstream from the Watchstreams page to get started
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            {/* View Tabs */}
+                            <div className={styles.viewControls}>
+                                <div className={styles.viewTabs}>
+                                    <button
+                                        className={watchstreamView === 'backlog' ? styles.viewTabActive : styles.viewTab}
+                                        onClick={() => setWatchstreamView('backlog')}
+                                    >
+                                        <Icon name="bookmark" size="small" />
+                                        Backlog ({backlogMovies.length})
+                                    </button>
+                                    <button
+                                        className={watchstreamView === 'watched' ? styles.viewTabActive : styles.viewTab}
+                                        onClick={() => setWatchstreamView('watched')}
+                                    >
+                                        <Icon name="check-circle" size="small" />
+                                        Watched ({watchedMovies.length})
+                                    </button>
+                                </div>
+
+                                {/* Platform Filters */}
+                                {allPlatforms.length > 0 && watchstreamView === 'backlog' && (
+                                    <div className={styles.platformFilters}>
+                                        <button
+                                            className={platformFilter === null ? styles.platformFilterActive : styles.platformFilter}
+                                            onClick={() => setPlatformFilter(null)}
+                                        >
+                                            All
+                                        </button>
+                                        {allPlatforms.map(platform => (
+                                            <button
+                                                key={platform}
+                                                className={platformFilter === platform ? styles.platformFilterActive : styles.platformFilter}
+                                                onClick={() => setPlatformFilter(platform)}
+                                            >
+                                                {platform}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Movies Grid */}
+                            {filteredWatchstreamMovies.length > 0 ? (
+                                <div className={styles.grid}>
+                                    {filteredWatchstreamMovies.map((movie) => (
+                                        <Card key={movie.tmdbId} className={styles.movieCard}>
+                                            <div className={styles.posterContainer}>
+                                                {movie.posterUrl ? (
+                                                    <img src={movie.posterUrl} alt={movie.title} className={styles.poster} />
+                                                ) : (
+                                                    <div className={styles.posterPlaceholder}>
+                                                        <Icon name="film" size="large" />
+                                                    </div>
+                                                )}
+                                                {watchstreamView === 'backlog' && (
+                                                    <div className={styles.overlay}>
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => handleMarkAsWatched(movie.tmdbId)}
+                                                            className={styles.statusButton}
+                                                        >
+                                                            <Icon name="check-circle" size="small" />
+                                                            Mark Watched
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className={styles.movieInfo}>
+                                                <h3 className={styles.movieTitle}>{movie.title}</h3>
+                                                {movie.year && <p className={styles.year}>{movie.year}</p>}
+                                                <div className={styles.movieMeta}>
+                                                    {movie.voteAverage && (
+                                                        <div className={styles.rating}>
+                                                            <Icon name="star" size="small" />
+                                                            <span>{movie.voteAverage.toFixed(1)}</span>
+                                                        </div>
+                                                    )}
+                                                    {movie.streamingPlatforms && movie.streamingPlatforms.length > 0 && (
+                                                        <StreamingPlatformBadge platforms={movie.streamingPlatforms} size="small" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.empty}>
+                                    <div className={styles.emptyIcon}>
+                                        {watchstreamView === 'backlog' ? '📚' : '✅'}
+                                    </div>
+                                    <h3 className={styles.emptyTitle}>
+                                        {watchstreamView === 'backlog' ? 'No movies in backlog' : 'No watched movies'}
+                                    </h3>
+                                    <p className={styles.emptyText}>
+                                        {watchstreamView === 'backlog'
+                                            ? 'Add movies to start building your watchlist'
+                                            : 'Mark movies as watched to see them here'}
+                                    </p>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
+            )}
+
+            {/* Add Movie Modal */}
+            <Modal
+                isOpen={showAddMovieModal}
+                onClose={() => setShowAddMovieModal(false)}
+                title="Add Movie to Watchstream"
+            >
+                <SearchBar
+                    onAddToWatchstream={handleAddMovieToWatchstream}
+                    showPlatformSelection={true}
+                />
             </Modal>
+
+            {/* Add Member Modal */}
+            <Modal
+                isOpen={showAddMemberModal}
+                onClose={() => {
+                    setShowAddMemberModal(false);
+                    setNewMemberEmail('');
+                }}
+                title="Invite Member to Circle"
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                    <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
+                        Enter the email address of the person you want to invite to this circle.
+                    </p>
+                    <input
+                        type="email"
+                        placeholder="Email address"
+                        value={newMemberEmail}
+                        onChange={(e) => setNewMemberEmail(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleAddMember()}
+                        style={{
+                            padding: 'var(--spacing-md)',
+                            fontSize: 'var(--font-size-md)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 'var(--radius-md)',
+                            background: 'var(--color-surface)',
+                            color: 'var(--color-text-primary)',
+                        }}
+                        autoFocus
+                    />
+                    <div style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'flex-end' }}>
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setShowAddMemberModal(false);
+                                setNewMemberEmail('');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleAddMember}
+                            disabled={!newMemberEmail.trim()}
+                        >
+                            Send Invitation
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Remove Member Modal */}
+            <Modal
+                isOpen={showRemoveMemberModal}
+                onClose={() => {
+                    setShowRemoveMemberModal(false);
+                    setSelectedMemberToRemove(null);
+                }}
+                title="Remove Member"
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                    <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
+                        Are you sure you want to remove <strong>{selectedMemberToRemove?.name}</strong> from this circle?
+                    </p>
+                    <div style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'flex-end' }}>
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setShowRemoveMemberModal(false);
+                                setSelectedMemberToRemove(null);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={handleRemoveMember}
+                        >
+                            Remove Member
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Add to Watchstream Modal */}
+            {selectedMovie && (
+                <AddToWatchstreamModal
+                    isOpen={showWatchstreamModal}
+                    onClose={() => setShowWatchstreamModal(false)}
+                    movie={selectedMovie}
+                    onSuccess={handleWatchstreamSuccess}
+                />
+            )}
+
+            {/* Recommend to Circles Modal */}
+            {selectedMovie && (
+                <RecommendToCirclesModal
+                    isOpen={showCirclesModal}
+                    onClose={() => setShowCirclesModal(false)}
+                    movie={selectedMovie}
+                    onSuccess={handleCirclesSuccess}
+                    existingCircleIds={circleMovies
+                        .filter(m => m.tmdbId === selectedMovie.tmdbId)
+                        .map(m => m.circleId)
+                        .filter((id): id is number => id !== undefined)
+                    }
+                />
+            )}
         </div>
     );
 }
-

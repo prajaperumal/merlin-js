@@ -1,46 +1,190 @@
-.watchstreams {
+.container {
     min-height: 100vh;
-    padding: var(--spacing-2xl);
+    padding: 0;
 }
 
+/* Header */
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--spacing-2xl);
+    justify-content: space-between;
+    padding: var(--spacing-2xl) var(--spacing-2xl) var(--spacing-xl);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.headerContent {
+    flex: 1;
 }
 
 .title {
     font-size: var(--font-size-3xl);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-xs) 0;
 }
 
+.subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Grid */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-xl);
+    padding: var(--spacing-xl) var(--spacing-2xl) var(--spacing-3xl);
 }
 
-.empty {
-    text-align: center;
-    padding: var(--spacing-2xl);
+/* Watchstream Card */
+.watchstreamCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.watchstreamCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform var(--transition-base);
+}
+
+.watchstreamCard:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.watchstreamCard:hover::before {
+    transform: scaleX(1);
+}
+
+.watchstreamCard:hover .cardArrow {
+    transform: translateX(4px);
+}
+
+/* Card Header */
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.cardIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: rgba(139, 92, 246, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.cardTitle {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0;
+    flex: 1;
+}
+
+/* Card Stats */
+.cardStats {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-background);
+    border-radius: var(--radius-md);
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+}
+
+.stat svg {
     color: var(--color-text-tertiary);
 }
 
-/* Watchstream theme - Blue */
-[data-theme="watchstream"] .title {
-    background: linear-gradient(135deg, var(--color-watchstream), var(--color-watchstream-hover));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.statValue {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
 }
 
-[data-theme="watchstream"] button {
-    background: var(--color-watchstream);
-    box-shadow: 0 4px 12px rgba(var(--color-watchstream-rgb), 0.3);
+.statLabel {
+    color: var(--color-text-secondary);
 }
 
-[data-theme="watchstream"] button:hover {
-    background: var(--color-watchstream-hover);
-    box-shadow: 0 6px 16px rgba(var(--color-watchstream-rgb), 0.4);
+.statDivider {
+    color: var(--color-text-tertiary);
+}
+
+/* Card Footer */
+.cardFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.cardDate {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+.cardArrow {
+    color: var(--color-text-tertiary);
+    transition: transform var(--transition-fast);
+}
+
+/* Empty State */
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+    text-align: center;
+    min-height: 400px;
+}
+
+.emptyIcon {
+    font-size: 64px;
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.4;
+}
+
+.emptyTitle {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.emptyText {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--spacing-xl) 0;
+    max-width: 400px;
 }

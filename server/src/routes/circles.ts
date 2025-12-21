@@ -118,7 +118,7 @@ circles.get('/:id/movies', async (c) => {
 circles.post('/:id/movies', async (c) => {
     const session = c.get('user') as AuthSession;
     const id = parseInt(c.req.param('id'));
-    const { movieTmdbId } = await c.req.json();
+    const { movieTmdbId, recommendation, streamingPlatforms } = await c.req.json();
 
     if (!movieTmdbId) {
         return c.json({ error: 'Movie ID is required' }, 400);
@@ -135,7 +135,7 @@ circles.post('/:id/movies', async (c) => {
         return c.json({ error: 'Not a member of this circle' }, 403);
     }
 
-    const result = await circleRepo.addMovieToCircle(id, movieTmdbId, session.userId);
+    const result = await circleRepo.addMovieToCircle(id, movieTmdbId, session.userId, recommendation, streamingPlatforms);
 
     if (!result) {
         return c.json({ error: 'Movie already in circle' }, 409);

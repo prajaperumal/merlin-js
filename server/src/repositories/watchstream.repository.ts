@@ -69,13 +69,14 @@ export class WatchstreamRepository {
     /**
      * Add movie to watchstream
      */
-    async addMovie(watchstreamId: number, movieTmdbId: number, watchStatus: string = 'backlog') {
+    async addMovie(watchstreamId: number, movieTmdbId: number, watchStatus: string = 'backlog', streamingPlatforms?: any) {
         try {
             return await prisma.watchstreamMovie.create({
                 data: {
                     watchstreamId,
                     movieTmdbId,
                     watchStatus,
+                    streamingPlatforms: streamingPlatforms || null,
                 },
             });
         } catch (error: any) {
@@ -101,15 +102,18 @@ export class WatchstreamRepository {
     /**
      * Update movie watch status
      */
-    async updateMovieStatus(watchstreamId: number, movieTmdbId: number, watchStatus: string) {
+    async updateMovieStatus(watchstreamId: number, movieTmdbId: number, watchStatus: string, streamingPlatforms?: any) {
+        const updateData: any = { watchStatus };
+        if (streamingPlatforms !== undefined) {
+            updateData.streamingPlatforms = streamingPlatforms;
+        }
+
         return prisma.watchstreamMovie.updateMany({
             where: {
                 watchstreamId,
                 movieTmdbId,
             },
-            data: {
-                watchStatus,
-            },
+            data: updateData,
         });
     }
 
@@ -137,12 +141,13 @@ export class WatchstreamRepository {
             },
         });
 
-        // Combine movie data with watch status
+        // Combine movie data with watch status and streaming platforms
         return watchstreamMovies.map(wm => {
             const movie = movies.find(m => m.tmdbId === wm.movieTmdbId);
             return {
                 ...movie,
                 watchStatus: wm.watchStatus,
+                streamingPlatforms: wm.streamingPlatforms,
                 addedAt: wm.addedAt,
             };
         });

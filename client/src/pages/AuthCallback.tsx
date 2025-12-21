@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
@@ -8,8 +8,13 @@ export function AuthCallback() {
     const navigate = useNavigate();
     const { refreshUser } = useAuth();
 
+    const processingRef = React.useRef(false);
+
     useEffect(() => {
         const handleCallback = async () => {
+            if (processingRef.current) return;
+            processingRef.current = true;
+
             const code = searchParams.get('code');
 
             if (!code) {

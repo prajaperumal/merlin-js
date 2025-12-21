@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Sidebar } from './components/Sidebar';
+import { Header } from './components/Header';
 import { Home } from './pages/Home';
 import { Watchstreams } from './pages/Watchstreams';
 import { WatchstreamDetail } from './pages/WatchstreamDetail';
@@ -11,7 +12,16 @@ import styles from './App.module.css';
 
 
 function AppContent() {
-    const { user, loading } = useAuth();
+    const { loading } = useAuth();
+    const location = useLocation();
+    const [homeMode, setHomeMode] = useState<'discover' | 'watchstream'>('discover');
+    const [discoverCount, setDiscoverCount] = useState(0);
+    const [watchstreamsCount, setWatchstreamsCount] = useState(0);
+
+    const handleCountsChange = useCallback((discover: number, watchstreams: number) => {
+        setDiscoverCount(discover);
+        setWatchstreamsCount(watchstreams);
+    }, []);
 
     if (loading) {
         return (
@@ -27,12 +37,28 @@ function AppContent() {
         );
     }
 
+    const isHomePage = location.pathname === '/';
+
     return (
         <div className={styles.layout}>
-            {user && <Sidebar />}
-            <main className={user ? styles.main : ''}>
+            <Header
+                mode={isHomePage ? homeMode : undefined}
+                onModeChange={isHomePage ? setHomeMode : undefined}
+                discoverCount={discoverCount}
+                watchstreamsCount={watchstreamsCount}
+            />
+            <main className={styles.main}>
                 <Routes>
-                    <Route path="/" element={<Home />} />
+                    <Route
+                        path="/"
+                        element={
+                            <Home
+                                mode={homeMode}
+                                onModeChange={setHomeMode}
+                                onCountsChange={handleCountsChange}
+                            />
+                        }
+                    />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/watchstreams" element={<Watchstreams />} />
                     <Route path="/watchstreams/:id" element={<WatchstreamDetail />} />

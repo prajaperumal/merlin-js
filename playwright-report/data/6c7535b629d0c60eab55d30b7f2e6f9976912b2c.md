@@ -1,0 +1,77 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Merlin Merlin" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Merlin" [ref=e7]
+        - generic [ref=e8]: Merlin
+      - generic [ref=e9]:
+        - button "Discover 1" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+          - generic [ref=e14]: Discover
+          - generic [ref=e15]: "1"
+        - button "Watchstreams" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+          - generic [ref=e20]: Watchstreams
+    - generic [ref=e23]:
+      - img [ref=e24]
+      - textbox "Search for movies..." [ref=e26]
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: Test User
+        - generic [ref=e30]: test-qavl1h@example.com
+      - img "Test User" [ref=e31]
+      - button [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+  - main [ref=e35]:
+    - generic [ref=e36]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - button "All Circles" [ref=e40] [cursor=pointer]
+          - button "Flow Circle B 1766356491109" [ref=e41] [cursor=pointer]
+          - button "Flow Circle A 1766356491109" [ref=e42] [cursor=pointer]
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - img "Inception" [ref=e46]
+            - generic [ref=e47]: Flow Circle A 1766356491109
+            - generic [ref=e48]:
+              - button "Add to Watchstream" [ref=e49] [cursor=pointer]:
+                - img [ref=e50]
+              - button "Recommend to Circles" [ref=e52] [cursor=pointer]:
+                - img [ref=e53]
+          - generic [ref=e55]:
+            - heading "Inception" [level=3] [ref=e56]
+            - paragraph [ref=e57]: "2010"
+            - generic "Recommended by Test User" [ref=e58]:
+              - img "Test User" [ref=e59]
+            - paragraph [ref=e60]: "\"Top tier sci-fi\""
+            - generic [ref=e62]:
+              - img [ref=e63]
+              - generic [ref=e65]: "8.4"
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - heading "Recommend \"Inception\" to Circles" [level=2] [ref=e69]
+          - button "✕" [ref=e70] [cursor=pointer]
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - generic [ref=e74]: Select Circles
+            - generic [ref=e75]:
+              - generic [ref=e76] [cursor=pointer]:
+                - img [ref=e78]
+                - generic [ref=e80]: Flow Circle B 1766356491109
+                - img [ref=e82]
+              - generic [ref=e84]:
+                - img [ref=e86]
+                - generic [ref=e88]: Flow Circle A 1766356491109
+                - generic [ref=e89]: Already Shared
+                - img [ref=e91]
+          - generic [ref=e93]:
+            - generic [ref=e94]: Recommendation Message (Optional)
+            - textbox "Why are you recommending this movie?" [ref=e95]
+        - generic [ref=e96]:
+          - button "Cancel" [ref=e97] [cursor=pointer]
+          - button "Recommend to 1 Circle" [ref=e98] [cursor=pointer]
+```

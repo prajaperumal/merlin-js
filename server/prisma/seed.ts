@@ -532,6 +532,142 @@ async function main() {
         }),
     ]);
 
+    // Add movies to circles with recommendations
+    console.log('🎬 Adding movies to circles with recommendations...');
+    await Promise.all([
+        // Movie Buffs - diverse selection
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[0].id,
+                movieTmdbId: movies[0].tmdbId, // The Matrix
+                addedBy: testUser.id,
+                recommendation: "Mind-bending sci-fi that changed cinema forever. The action sequences are still incredible!",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[0].id,
+                movieTmdbId: movies[4].tmdbId, // Shawshank
+                addedBy: users[0].id, // Alice
+                recommendation: "One of the greatest films ever made. The story of hope and friendship will stay with you forever.",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[0].id,
+                movieTmdbId: movies[5].tmdbId, // Godfather
+                addedBy: users[1].id, // Bob
+            },
+        }),
+        // Sci-Fi Fans
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[1].id,
+                movieTmdbId: movies[2].tmdbId, // Inception
+                addedBy: testUser.id,
+                recommendation: "Nolan at his best! Every time you watch it, you discover something new. The dream sequences are perfection.",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[1].id,
+                movieTmdbId: movies[3].tmdbId, // Interstellar
+                addedBy: users[0].id, // Alice
+                recommendation: "Brings tears to my eyes every time. The science is fascinating and the emotional core is powerful.",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[1].id,
+                movieTmdbId: movies[0].tmdbId, // The Matrix
+                addedBy: users[3].id, // David
+                recommendation: "The OG of modern sci-fi. Take the red pill!",
+            },
+        }),
+        // Horror Club
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[2].id,
+                movieTmdbId: movies[8].tmdbId, // The Shining
+                addedBy: testUser.id,
+                recommendation: "Kubrick's masterpiece. Atmospheric, terrifying, and unforgettable. All work and no play...",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[2].id,
+                movieTmdbId: movies[9].tmdbId, // Seven
+                addedBy: users[1].id, // Bob
+                recommendation: "Dark, disturbing, and brilliant. The ending will haunt you. What's in the box?!",
+            },
+        }),
+        // Classic Cinema
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[3].id,
+                movieTmdbId: movies[5].tmdbId, // Godfather
+                addedBy: testUser.id,
+                recommendation: "The definition of a masterpiece. Every frame is perfect. An offer you can't refuse!",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[3].id,
+                movieTmdbId: movies[4].tmdbId, // Shawshank
+                addedBy: users[2].id, // Carol
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[3].id,
+                movieTmdbId: movies[6].tmdbId, // Forrest Gump
+                addedBy: users[4].id, // Emma
+                recommendation: "Life is like a box of chocolates... This movie has it all: humor, heart, and history.",
+            },
+        }),
+        // Weekend Warriors
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[4].id,
+                movieTmdbId: movies[1].tmdbId, // Dark Knight
+                addedBy: testUser.id,
+                recommendation: "Perfect weekend watch! Heath Ledger's Joker is iconic. Why so serious?",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[4].id,
+                movieTmdbId: movies[7].tmdbId, // Pulp Fiction
+                addedBy: users[0].id, // Alice
+                recommendation: "Tarantino's best work. Non-linear storytelling at its finest. Say 'what' again!",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[4].id,
+                movieTmdbId: movies[6].tmdbId, // Forrest Gump
+                addedBy: users[4].id, // Emma
+            },
+        }),
+        // Film Critics
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[5].id,
+                movieTmdbId: movies[2].tmdbId, // Inception
+                addedBy: testUser.id,
+                recommendation: "Technically brilliant with layers of meaning. The practical effects are outstanding. A study in filmmaking.",
+            },
+        }),
+        prisma.circleMovie.create({
+            data: {
+                circleId: circles[5].id,
+                movieTmdbId: movies[5].tmdbId, // Godfather
+                addedBy: users[3].id, // David
+                recommendation: "The pinnacle of American cinema. Coppola's direction, Brando's performance - everything is perfect.",
+            },
+        }),
+    ]);
+
     console.log('✅ Database seeded successfully!');
     console.log('\n📊 Summary:');
     console.log(`   - Using your account: ${testUser.email}`);
@@ -539,6 +675,7 @@ async function main() {
     console.log(`   - Created 10 sample movies`);
     console.log(`   - Created 6 watchstreams with movies`);
     console.log(`   - Created 6 circles with members`);
+    console.log(`   - Added 16 movies to circles with recommendations`);
     console.log('\n🎉 Refresh your browser to see the data!');
 }
 

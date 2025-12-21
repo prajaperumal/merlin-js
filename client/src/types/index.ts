@@ -6,6 +6,11 @@ export interface User {
     picture: string | null;
 }
 
+export interface StreamingPlatform {
+    name: string;
+    logo?: string;
+}
+
 export interface Movie {
     id: number;
     tmdbId: number;
@@ -25,6 +30,7 @@ export interface Movie {
     adult?: boolean;
     genreIds?: number[];
     watchStatus?: 'backlog' | 'watched';
+    streamingPlatforms?: StreamingPlatform[];
     addedAt?: string;
 }
 
@@ -33,6 +39,7 @@ export interface WatchstreamMovie {
     watchstreamId: number;
     movieTmdbId: number;
     watchStatus: 'backlog' | 'watched';
+    streamingPlatforms?: StreamingPlatform[];
     addedAt: Date;
 }
 

@@ -3,6 +3,9 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { env } from './config/env.js';
+console.log('--- Server Environment Loaded ---');
+console.log('DATABASE_URL:', env.DATABASE_URL.replace(/:[^:@]+@/, ':****@')); // Hide password
+
 import { errorMiddleware } from './middleware/error.middleware.js';
 import auth from './routes/auth.js';
 import movies from './routes/movies.js';
@@ -35,9 +38,12 @@ app.notFound((c) => {
     return c.json({ error: 'Not found' }, 404);
 });
 
-console.log(`🚀 Server starting on port ${env.PORT}`);
+export default app;
 
-serve({
-    fetch: app.fetch,
-    port: env.PORT,
-});
+if (process.env.NODE_ENV !== 'test') {
+    console.log(`🚀 Server starting on port ${env.PORT}`);
+    serve({
+        fetch: app.fetch,
+        port: env.PORT,
+    });
+}

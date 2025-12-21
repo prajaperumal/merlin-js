@@ -13,13 +13,22 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
+
+            const handleEscape = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    onClose();
+                }
+            };
+
+            window.addEventListener('keydown', handleEscape);
+            return () => {
+                document.body.style.overflow = 'unset';
+                window.removeEventListener('keydown', handleEscape);
+            };
         }
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
-    }, [isOpen]);
+
+        document.body.style.overflow = 'unset';
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
