@@ -7,7 +7,7 @@ export type IconName =
     | 'search' | 'star' | 'heart' | 'bookmark' | 'log-out' | 'logout' | 'settings'
     | 'user' | 'users' | 'users-group'
     | 'chevron-down' | 'chevron-right' | 'chevron-up' | 'chevron-left'
-    | 'plus' | 'minus' | 'x' | 'crown' | 'check-circle' | 'film';
+    | 'plus' | 'minus' | 'x' | 'crown' | 'check-circle' | 'film' | 'message-square' | 'send';
 
 export interface IconProps {
     name: IconName;
@@ -128,37 +128,37 @@ export function Icon({ name, size = 'medium', className = '', style }: IconProps
         case 'plus':
             return (
                 <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 12H12M12 12H18M12 12V18M12 12V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 12H12M12 12H18M12 12V18M12 12V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             );
         case 'minus':
             return (
                 <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             );
         case 'x':
             return (
                 <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             );
         case 'crown':
             return (
                 <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 19H21M4 15L7 9L10 13L14 7L17 13L20 9L21 15H3H4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 19H21M4 15L7 9L10 13L14 7L17 13L20 9L21 15H3H4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             );
         case 'check-circle':
             return (
                 <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             );
         case 'film':
             return (
                 <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19.8 22.6L4.2 22.6C3.08 22.6 2.51997 22.6 2.092 22.382C1.71569 22.1903 1.40973 21.8843 1.21799 21.508C1 21.08 1 20.5203 1 19.4V4.6C1 3.47977 1 2.91962 1.21799 2.49197C1.40973 2.11569 1.71569 1.80973 2.092 1.61799C2.51962 1.4 3.07967 1.4 4.19978 1.4H19.8002C20.9203 1.4 21.4801 1.4 21.9079 1.61799C22.2842 1.80973 22.5905 2.11569 22.7822 2.49197C23.0002 2.91962 23.0002 3.47977 23.0002 4.6V19.4C23.0002 20.5203 23.0002 21.08 22.7822 21.508C22.5905 21.8843 22.2842 22.1903 21.9079 22.382C21.4805 22.6 20.9215 22.6 19.8036 22.6H19.8ZM7 1.4V22.6M17 1.4V22.6M1 12H7M17 12H23M1 7H7M17 7H23M1 17H7M17 17H23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M19.8 22.6L4.2 22.6C3.08 22.6 2.51997 22.6 2.092 22.382C1.71569 22.1903 1.40973 21.8843 1.21799 21.508C1 21.08 1 20.5203 1 19.4V4.6C1 3.47977 1 2.91962 1.21799 2.49197C1.40973 2.11569 1.71569 1.80973 2.092 1.61799C2.51962 1.4 3.07967 1.4 4.19978 1.4H19.8002C20.9203 1.4 21.4801 1.4 21.9079 1.61799C22.2842 1.80973 22.5905 2.11569 22.7822 2.49197C23.0002 2.91962 23.0002 3.47977 23.0002 4.6V19.4C23.0002 20.5203 23.0002 21.08 22.7822 21.508C22.5905 21.8843 22.2842 22.1903 21.9079 22.382C21.4805 22.6 20.9215 22.6 19.8036 22.6H19.8ZM7 1.4V22.6M17 1.4V22.6M1 12H7M17 12H23M1 7H7M17 7H23M1 17H7M17 17H23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             );
         case 'play':
@@ -172,6 +172,18 @@ export function Icon({ name, size = 'medium', className = '', style }: IconProps
                 <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 4H6V20H10V4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M18 4H14V20H18V4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            );
+        case 'message-square':
+            return (
+                <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            );
+        case 'send':
+            return (
+                <svg className={combinedClassName} style={combinedStyle} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             );
         default:

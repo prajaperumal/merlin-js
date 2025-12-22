@@ -219,6 +219,26 @@ class ApiService {
             credentials: 'include',
         });
     }
+
+    async getCircleMovieComments(circleMovieId: number): Promise<any[]> {
+        const res = await fetch(`${API_BASE}/circles/movies/${circleMovieId}/comments`, {
+            credentials: 'include',
+        });
+        const data = await res.json();
+        return data.comments;
+    }
+
+    async addCircleMovieComment(circleMovieId: number, content: string): Promise<any> {
+        const res = await fetch(`${API_BASE}/circles/movies/${circleMovieId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content }),
+            credentials: 'include',
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        return data.comment;
+    }
 }
 
 export const api = new ApiService();

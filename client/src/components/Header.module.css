@@ -40,7 +40,16 @@
 }
 
 .logoLink:hover {
-    opacity: 0.8;
+    opacity: 1;
+}
+
+.logoLink:hover .logoText {
+    text-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.5);
+    transform: translateY(-1px);
+}
+
+.logoLink:hover .logo {
+    transform: scale(1.05) rotate(-5deg);
 }
 
 .logo {
@@ -48,12 +57,19 @@
     width: auto;
     border-radius: var(--radius-md);
     object-fit: contain;
+    transition: transform var(--transition-base);
 }
 
 .logoText {
     font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
+    font-weight: var(--font-weight-extrabold);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.03em;
+    filter: drop-shadow(0 0 2px rgba(var(--color-primary-rgb), 0.2));
+    transition: all var(--transition-base);
 }
 
 /* Mode Tabs */

@@ -25,7 +25,7 @@ export function RecommendToCirclesModal({ isOpen, onClose, movie, onSuccess, exi
             loadCircles();
             setSelectedCircles(new Set(existingCircleIds));
         }
-    }, [isOpen, existingCircleIds]);
+    }, [isOpen]);
 
     const loadCircles = async () => {
         try {
@@ -54,8 +54,12 @@ export function RecommendToCirclesModal({ isOpen, onClose, movie, onSuccess, exi
 
         setLoading(true);
         try {
+            const newCirclesToRecommend = Array.from(selectedCircles).filter(
+                id => !existingCircleIds.includes(id)
+            );
+
             await Promise.all(
-                Array.from(selectedCircles).map(circleId =>
+                newCirclesToRecommend.map(circleId =>
                     api.addMovieToCircle(
                         circleId,
                         movie.tmdbId,

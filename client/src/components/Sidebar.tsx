@@ -5,7 +5,7 @@ import { api } from '../services/api';
 import { Watchstream, Circle } from '../types';
 import { Button } from './ui/Button';
 import { Icon } from './ui/Icon';
-import merlinLogo from '../assets/images/merlin-logo.png';
+import merlinLogo from '../assets/images/merlin-logo-transparent.png';
 import styles from './Sidebar.module.css';
 
 export function Sidebar() {

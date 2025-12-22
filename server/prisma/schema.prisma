@@ -18,8 +18,9 @@ model User {
   lastLogin         DateTime?      @map("last_login")
   circleMemberships CircleMember[]
   circleMovies      CircleMovie[]
-  ownedCircles      Circle[]       @relation("CircleOwner")
+  ownedCircles      Circle[]             @relation("CircleOwner")
   watchstreams      Watchstream[]
+  movieComments     CircleMovieComment[]
 
   @@map("users")
 }
@@ -116,8 +117,23 @@ model CircleMovie {
   addedAt            DateTime @default(now()) @map("added_at")
   user               User     @relation(fields: [addedBy], references: [id], onDelete: Cascade)
   circle             Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
-  movie              Movie    @relation(fields: [movieTmdbId], references: [tmdbId], onDelete: Cascade)
+  movie              Movie                @relation(fields: [movieTmdbId], references: [tmdbId], onDelete: Cascade)
+  comments           CircleMovieComment[]
 
   @@unique([circleId, movieTmdbId])
   @@map("circle_movies")
+}
+
+model CircleMovieComment {
+  id            Int         @id @default(autoincrement())
+  circleMovieId Int         @map("circle_movie_id")
+  userId        Int         @map("user_id")
+  content       String      @db.Text
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  
+  circleMovie   CircleMovie @relation(fields: [circleMovieId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("circle_movie_comments")
 }

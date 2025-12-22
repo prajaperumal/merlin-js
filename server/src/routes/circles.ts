@@ -13,7 +13,7 @@ circles.use('/*', authMiddleware);
 
 // Get user's circles
 circles.get('/', async (c) => {
-    const session = c.get('user') as AuthSession;
+    const session = (c as any).get('user') as AuthSession;
     const userCircles = await circleRepo.getUserCircles(session.userId);
     const pendingInvitations = await circleRepo.getPendingInvitations(session.userId);
 
@@ -25,7 +25,7 @@ circles.get('/', async (c) => {
 
 // Create circle
 circles.post('/', async (c) => {
-    const session = c.get('user') as AuthSession;
+    const session = (c as any).get('user') as AuthSession;
     const { name, description } = await c.req.json();
 
     if (!name) {
@@ -57,7 +57,7 @@ circles.delete('/:id', async (c) => {
 
 // Invite member
 circles.post('/:id/invite', async (c) => {
-    const session = c.get('user') as AuthSession;
+    const session = (c as any).get('user') as AuthSession;
     const id = parseInt(c.req.param('id'));
     const { email } = await c.req.json();
 
@@ -82,7 +82,7 @@ circles.post('/:id/invite', async (c) => {
 
 // Accept invitation
 circles.post('/:id/accept', async (c) => {
-    const session = c.get('user') as AuthSession;
+    const session = (c as any).get('user') as AuthSession;
     const id = parseInt(c.req.param('id'));
 
     await circleRepo.acceptInvitation(id, session.userId);
@@ -91,7 +91,7 @@ circles.post('/:id/accept', async (c) => {
 
 // Decline invitation
 circles.post('/:id/decline', async (c) => {
-    const session = c.get('user') as AuthSession;
+    const session = (c as any).get('user') as AuthSession;
     const id = parseInt(c.req.param('id'));
 
     await circleRepo.declineInvitation(id, session.userId);
@@ -116,7 +116,7 @@ circles.get('/:id/movies', async (c) => {
 
 // Add movie to circle
 circles.post('/:id/movies', async (c) => {
-    const session = c.get('user') as AuthSession;
+    const session = (c as any).get('user') as AuthSession;
     const id = parseInt(c.req.param('id'));
     const { movieTmdbId, recommendation, streamingPlatforms } = await c.req.json();
 
@@ -151,6 +151,27 @@ circles.delete('/:id/movies/:movieId', async (c) => {
 
     await circleRepo.removeMovieFromCircle(id, movieId);
     return c.json({ success: true });
+});
+
+// Get comments for a circle movie
+circles.get('/movies/:circleMovieId/comments', async (c) => {
+    const circleMovieId = parseInt(c.req.param('circleMovieId'));
+    const comments = await circleRepo.getComments(circleMovieId);
+    return c.json({ comments });
+});
+
+// Add comment to a circle movie
+circles.post('/movies/:circleMovieId/comments', async (c) => {
+    const session = (c as any).get('user') as AuthSession;
+    const circleMovieId = parseInt(c.req.param('circleMovieId'));
+    const { content } = await c.req.json();
+
+    if (!content) {
+        return c.json({ error: 'Comment content is required' }, 400);
+    }
+
+    const comment = await circleRepo.addComment(circleMovieId, session.userId, content);
+    return c.json({ comment }, 201);
 });
 
 export default circles;

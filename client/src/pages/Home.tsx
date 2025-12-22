@@ -10,6 +10,7 @@ import { SearchBar } from '../components/SearchBar';
 import { StreamingPlatformBadge } from '../components/StreamingPlatformBadge';
 import { AddToWatchstreamModal } from '../components/AddToWatchstreamModal';
 import { RecommendToCirclesModal } from '../components/RecommendToCirclesModal';
+import { DiscussionDrawer } from '../components/DiscussionDrawer';
 import styles from './Home.module.css';
 
 type AppMode = 'discover' | 'watchstream';
@@ -59,6 +60,8 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
     const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
     const [showWatchstreamModal, setShowWatchstreamModal] = useState(false);
     const [showCirclesModal, setShowCirclesModal] = useState(false);
+    const [showDiscussionDrawer, setShowDiscussionDrawer] = useState(false);
+    const [discussionMovie, setDiscussionMovie] = useState<any | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -228,6 +231,11 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
         setSelectedMovie(null);
     };
 
+    const handleOpenDiscussion = (item: any) => {
+        setDiscussionMovie(item);
+        setShowDiscussionDrawer(true);
+    };
+
     const handlePickRandom = () => {
         const filteredMovies = platformFilter
             ? backlogMovies.filter(m => m.streamingPlatforms?.some(p => p.name === platformFilter))
@@ -302,7 +310,11 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                         {filteredCircleMovies.length > 0 ? (
                             <div className={styles.grid}>
                                 {filteredCircleMovies.map((movie) => (
-                                    <Card key={`${movie.circleId}-${movie.tmdbId}`} className={styles.movieCard}>
+                                    <Card
+                                        key={`${movie.circleId}-${movie.tmdbId}`}
+                                        className={`${styles.movieCard} ${styles.clickableCard}`}
+                                        onClick={() => handleOpenDiscussion(movie)}
+                                    >
                                         <div className={styles.posterContainer}>
                                             {movie.posterUrl ? (
                                                 <img src={movie.posterUrl} alt={movie.title} className={styles.poster} />
@@ -332,6 +344,16 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                                                     title="Recommend to Circles"
                                                 >
                                                     <Icon name="users" size="medium" />
+                                                </button>
+                                                <button
+                                                    className={styles.cardActionButton}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleOpenDiscussion(movie);
+                                                    }}
+                                                    title="Discuss Movie"
+                                                >
+                                                    <Icon name="message-square" size="medium" />
                                                 </button>
                                             </div>
                                         </div>
@@ -540,7 +562,11 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                             {filteredWatchstreamMovies.length > 0 ? (
                                 <div className={styles.grid}>
                                     {filteredWatchstreamMovies.map((movie) => (
-                                        <Card key={movie.tmdbId} className={styles.movieCard}>
+                                        <Card
+                                            key={movie.tmdbId}
+                                            className={`${styles.movieCard} ${styles.clickableCard}`}
+                                            onClick={() => handleOpenDiscussion(movie)}
+                                        >
                                             <div className={styles.posterContainer}>
                                                 {movie.posterUrl ? (
                                                     <img src={movie.posterUrl} alt={movie.title} className={styles.poster} />
@@ -717,6 +743,15 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                         .map(m => m.circleId)
                         .filter((id): id is number => id !== undefined)
                     }
+                />
+            )}
+
+            {discussionMovie && (
+                <DiscussionDrawer
+                    isOpen={showDiscussionDrawer}
+                    onClose={() => setShowDiscussionDrawer(false)}
+                    movie={discussionMovie}
+                    circleMovieId={discussionMovie.circleMovieId}
                 />
             )}
         </div>

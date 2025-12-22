@@ -77,6 +77,16 @@
 .movieTile {
     padding: 0;
     overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.movieTile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.clickableTile {
+    cursor: pointer;
 }
 
 .movieTileContent {
@@ -118,6 +128,7 @@
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -128,7 +139,35 @@
     gap: var(--spacing-md);
     padding: var(--spacing-md);
     border-left: 1px solid var(--color-border);
-    min-width: 200px;
+    min-width: 250px;
+}
+
+.topActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    width: 100%;
+}
+
+.discussionButton {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+}
+
+.discussionButton:hover {
+    background: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary-hover);
+}
+
+.buttonIcon {
+    width: 16px;
+    height: 16px;
 }
 
 .addedBySection {
@@ -357,6 +396,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

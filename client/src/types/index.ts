@@ -32,6 +32,7 @@ export interface Movie {
     watchStatus?: 'backlog' | 'watched';
     streamingPlatforms?: StreamingPlatform[];
     addedAt?: string;
+    circleMovieId?: number;
 }
 
 export interface WatchstreamMovie {

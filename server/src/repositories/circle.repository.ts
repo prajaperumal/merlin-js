@@ -213,6 +213,7 @@ export class CircleRepository {
         // Transform to flatten movie data
         return circleMovies.map(cm => ({
             ...cm.movie,
+            circleMovieId: cm.id,
             streamingPlatforms: cm.streamingPlatforms,
             recommendation: cm.recommendation,
             addedAt: cm.addedAt,
@@ -251,6 +252,49 @@ export class CircleRepository {
                 circleId,
                 movieTmdbId,
             },
+        });
+    }
+
+    /**
+     * Add a comment to a circle movie
+     */
+    async addComment(circleMovieId: number, userId: number, content: string) {
+        return prisma.circleMovieComment.create({
+            data: {
+                circleMovieId,
+                userId,
+                content,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        picture: true,
+                    },
+                },
+            },
+        });
+    }
+
+    /**
+     * Get comments for a circle movie
+     */
+    async getComments(circleMovieId: number) {
+        return prisma.circleMovieComment.findMany({
+            where: { circleMovieId },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        picture: true,
+                    },
+                },
+            },
+            orderBy: { createdAt: 'asc' },
         });
     }
 }

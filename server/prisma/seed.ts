@@ -668,6 +668,42 @@ async function main() {
         }),
     ]);
 
+    // Add discussion comments to movies
+    console.log('💬 Adding discussion comments to movies...');
+    const allCircleMovies = await prisma.circleMovie.findMany();
+
+    const discussions = [
+        "Has anyone watched the sequel?",
+        "I still think about that ending. So deep.",
+        "The cinematography in this is just breathtaking.",
+        "Alice, we should totally watch this next weekend!",
+        "Bob, you're 100% right about the soundtrack. It's legendary.",
+        "Can we talk about the plot twist? I did not see that coming.",
+        "Is this version the extended cut or the theatrical one?",
+        "I've seen this 5 times and it never gets old.",
+        "The acting is top-notch, especially the lead role.",
+        "Perfect for a movie night!",
+        "Wait, did I miss something? Why did the character do that?",
+        "The special effects were ahead of their time.",
+    ];
+
+    for (const cm of allCircleMovies) {
+        // Add 2-4 random comments to each movie
+        const commentCount = Math.floor(Math.random() * 3) + 2;
+        const shuffledUsers = [...users, testUser].sort(() => 0.5 - Math.random());
+
+        for (let i = 0; i < commentCount; i++) {
+            await prisma.circleMovieComment.create({
+                data: {
+                    circleMovieId: cm.id,
+                    userId: shuffledUsers[i % shuffledUsers.length].id,
+                    content: discussions[Math.floor(Math.random() * discussions.length)],
+                    createdAt: new Date(Date.now() - Math.random() * 10000000), // Random time in the past
+                }
+            });
+        }
+    }
+
     console.log('✅ Database seeded successfully!');
     console.log('\n📊 Summary:');
     console.log(`   - Using your account: ${testUser.email}`);

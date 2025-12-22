@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/Button';
 import { Icon } from './ui/Icon';
 import { MovieSearchBar } from './MovieSearchBar';
-import merlinLogo from '../assets/images/merlin-logo-img.jpg';
+import merlinLogo from '../assets/images/merlin-logo-transparent.png';
 import styles from './Header.module.css';
 
 interface HeaderProps {
