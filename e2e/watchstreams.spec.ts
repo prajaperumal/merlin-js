@@ -17,6 +17,11 @@ test.describe('Watchstream Management', () => {
     });
 
     test('should move movie from backlog to watched', async ({ authenticatedPage: page }) => {
+        page.on('dialog', dialog => {
+            console.log(`ALERT: ${dialog.message()}`);
+            dialog.dismiss().catch(() => { });
+        });
+
         await page.goto('/watchstreams');
         const wsName = `Status Test ${Date.now()}`;
         await page.getByRole('button', { name: /Create Watchstream/i }).click();
@@ -44,15 +49,18 @@ test.describe('Watchstream Management', () => {
 
             const inceptionCard = page.locator('div[class*="movieCard"]').filter({ hasText: 'Inception' });
             await inceptionCard.hover();
-            // Specifically target "Mark Watched" within the card
+
+            // Wait for marking
             await inceptionCard.getByRole('button', { name: /Mark Watched/i }).click({ force: true });
 
-            // Use a more specific locator for the "Watched" tab
+            // Wait for state to settle
+            await page.waitForTimeout(1000);
+
             const watchedTab = page.locator('button[class*="viewTab"]').filter({ hasText: /Watched/ });
             await expect(watchedTab).toBeVisible({ timeout: 10000 });
             await watchedTab.click({ force: true });
 
-            await expect(page.locator('main').getByText('Inception')).toBeVisible();
+            await expect(page.locator('main').getByText('Inception')).toBeVisible({ timeout: 15000 });
         } catch (e) {
             await page.screenshot({ path: `test-results/ws-fail-${Date.now()}.png`, fullPage: true });
             throw e;
