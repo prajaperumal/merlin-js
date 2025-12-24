@@ -34,22 +34,13 @@
 .logoLink {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: 2px;
     text-decoration: none;
     transition: opacity var(--transition-fast);
 }
 
 .logoLink:hover {
-    opacity: 1;
-}
-
-.logoLink:hover .logoText {
-    text-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.5);
-    transform: translateY(-1px);
-}
-
-.logoLink:hover .logo {
-    transform: scale(1.05) rotate(-5deg);
+    opacity: 0.8;
 }
 
 .logo {

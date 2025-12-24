@@ -48,7 +48,6 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
     const [selectedWatchstreamId, setSelectedWatchstreamId] = useState<number | null>(null);
     const [backlogMovies, setBacklogMovies] = useState<Movie[]>([]);
     const [watchedMovies, setWatchedMovies] = useState<Movie[]>([]);
-    const [watchstreamView, setWatchstreamView] = useState<'backlog' | 'watched'>('backlog');
     const [platformFilter, setPlatformFilter] = useState<string | null>(null);
 
     // Modals
@@ -159,7 +158,7 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
     const handleAddMovieToWatchstream = async (movie: Movie, streamingPlatforms?: StreamingPlatform[]) => {
         if (!selectedWatchstreamId) return;
         try {
-            await api.addMovieToWatchstream(selectedWatchstreamId, movie.tmdbId, watchstreamView, streamingPlatforms);
+            await api.addMovieToWatchstream(selectedWatchstreamId, movie.tmdbId, 'backlog', streamingPlatforms);
             setShowAddMovieModal(false);
             loadWatchstreamMovies();
         } catch (error: any) {
@@ -236,31 +235,23 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
         setShowDiscussionDrawer(true);
     };
 
-    const handlePickRandom = () => {
-        const filteredMovies = platformFilter
-            ? backlogMovies.filter(m => m.streamingPlatforms?.some(p => p.name === platformFilter))
-            : backlogMovies;
-
-        if (filteredMovies.length > 0) {
-            const randomIndex = Math.floor(Math.random() * filteredMovies.length);
-            const randomMovie = filteredMovies[randomIndex];
-            alert(`How about: ${randomMovie.title}${randomMovie.year ? ` (${randomMovie.year})` : ''}?`);
-        }
-    };
 
     const filteredCircleMovies = selectedCircleFilter
         ? circleMovies.filter(m => m.circleId === selectedCircleFilter)
         : circleMovies;
 
+    // Combine backlog and watched movies for unified view
+    const allWatchstreamMovies = [...backlogMovies, ...watchedMovies];
+
     const filteredWatchstreamMovies = platformFilter
-        ? (watchstreamView === 'backlog' ? backlogMovies : watchedMovies).filter(
+        ? allWatchstreamMovies.filter(
             m => m.streamingPlatforms?.some(p => p.name === platformFilter)
         )
-        : (watchstreamView === 'backlog' ? backlogMovies : watchedMovies);
+        : allWatchstreamMovies;
 
     const allPlatforms = Array.from(
         new Set(
-            backlogMovies.flatMap(m => m.streamingPlatforms?.map(p => p.name) || [])
+            allWatchstreamMovies.flatMap(m => m.streamingPlatforms?.map(p => p.name) || [])
         )
     );
 
@@ -471,38 +462,20 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
             {/* My Watchstream Mode */}
             {mode === 'watchstream' && (
                 <div className={styles.content}>
-                    <div className={styles.contentHeader}>
-                        <div>
-                            <h1 className={styles.pageTitle}>Watchstreams</h1>
-                            <p className={styles.pageSubtitle}>
-                                {backlogMovies.length} to watch · {watchedMovies.length} watched
-                            </p>
-                        </div>
-                        <div className={styles.headerActions}>
-                            {backlogMovies.length > 0 && watchstreamView === 'backlog' && (
-                                <Button variant="secondary" onClick={handlePickRandom}>
-                                    Pick Random
-                                </Button>
-                            )}
-                            <Button onClick={() => setShowAddMovieModal(true)}>
-                                <Icon name="plus" size="small" />
-                                Add Movie
-                            </Button>
-                        </div>
-                    </div>
-
                     {/* Watchstream Selector */}
                     {watchstreams.length > 0 && (
-                        <div className={styles.filters}>
-                            {watchstreams.map(watchstream => (
-                                <button
-                                    key={watchstream.id}
-                                    className={selectedWatchstreamId === watchstream.id ? styles.filterActive : styles.filter}
-                                    onClick={() => setSelectedWatchstreamId(watchstream.id)}
-                                >
-                                    {watchstream.name}
-                                </button>
-                            ))}
+                        <div className={styles.watchstreamNavigation}>
+                            <div className={styles.watchstreamFilters}>
+                                {watchstreams.map(watchstream => (
+                                    <button
+                                        key={watchstream.id}
+                                        className={selectedWatchstreamId === watchstream.id ? styles.filterActive : styles.filter}
+                                        onClick={() => setSelectedWatchstreamId(watchstream.id)}
+                                    >
+                                        {watchstream.name}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -517,112 +490,125 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                         </div>
                     ) : (
                         <>
-                            {/* View Tabs */}
-                            <div className={styles.viewControls}>
-                                <div className={styles.viewTabs}>
+                            {/* Platform Filters */}
+                            {allPlatforms.length > 0 && (
+                                <div className={styles.platformFiltersRow}>
                                     <button
-                                        className={watchstreamView === 'backlog' ? styles.viewTabActive : styles.viewTab}
-                                        onClick={() => setWatchstreamView('backlog')}
+                                        className={platformFilter === null ? styles.platformFilterActive : styles.platformFilter}
+                                        onClick={() => setPlatformFilter(null)}
                                     >
-                                        <Icon name="bookmark" size="small" />
-                                        Backlog ({backlogMovies.length})
+                                        All
                                     </button>
-                                    <button
-                                        className={watchstreamView === 'watched' ? styles.viewTabActive : styles.viewTab}
-                                        onClick={() => setWatchstreamView('watched')}
-                                    >
-                                        <Icon name="check-circle" size="small" />
-                                        Watched ({watchedMovies.length})
-                                    </button>
-                                </div>
-
-                                {/* Platform Filters */}
-                                {allPlatforms.length > 0 && watchstreamView === 'backlog' && (
-                                    <div className={styles.platformFilters}>
+                                    {allPlatforms.map(platform => (
                                         <button
-                                            className={platformFilter === null ? styles.platformFilterActive : styles.platformFilter}
-                                            onClick={() => setPlatformFilter(null)}
+                                            key={platform}
+                                            className={platformFilter === platform ? styles.platformFilterActive : styles.platformFilter}
+                                            onClick={() => setPlatformFilter(platform)}
                                         >
-                                            All
+                                            {platform}
                                         </button>
-                                        {allPlatforms.map(platform => (
-                                            <button
-                                                key={platform}
-                                                className={platformFilter === platform ? styles.platformFilterActive : styles.platformFilter}
-                                                onClick={() => setPlatformFilter(platform)}
-                                            >
-                                                {platform}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
 
-                            {/* Movies Grid */}
+                            {/* Combined Movies Grid */}
                             {filteredWatchstreamMovies.length > 0 ? (
                                 <div className={styles.grid}>
-                                    {filteredWatchstreamMovies.map((movie) => (
-                                        <Card
-                                            key={movie.tmdbId}
-                                            className={`${styles.movieCard} ${styles.clickableCard}`}
-                                            onClick={() => handleOpenDiscussion(movie)}
-                                        >
-                                            <div className={styles.posterContainer}>
-                                                {movie.posterUrl ? (
-                                                    <img src={movie.posterUrl} alt={movie.title} className={styles.poster} />
-                                                ) : (
-                                                    <div className={styles.posterPlaceholder}>
-                                                        <Icon name="film" size="large" />
-                                                    </div>
-                                                )}
-                                                {watchstreamView === 'backlog' && (
-                                                    <div className={styles.overlay}>
-                                                        <Button
-                                                            size="small"
-                                                            onClick={() => handleMarkAsWatched(movie.tmdbId)}
-                                                            className={styles.statusButton}
-                                                        >
-                                                            <Icon name="check-circle" size="small" />
-                                                            Mark Watched
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className={styles.movieInfo}>
-                                                <h3 className={styles.movieTitle}>{movie.title}</h3>
-                                                {movie.year && <p className={styles.year}>{movie.year}</p>}
-                                                <div className={styles.movieMeta}>
-                                                    {movie.voteAverage && (
-                                                        <div className={styles.rating}>
-                                                            <Icon name="star" size="small" />
-                                                            <span>{movie.voteAverage.toFixed(1)}</span>
+                                    {filteredWatchstreamMovies.map((movie) => {
+                                        const isWatched = watchedMovies.some(m => m.tmdbId === movie.tmdbId);
+                                        return (
+                                            <Card
+                                                key={movie.tmdbId}
+                                                className={`${styles.movieCard} ${styles.clickableCard} ${isWatched ? styles.watchedCard : ''}`}
+                                                onClick={() => handleOpenDiscussion(movie)}
+                                            >
+                                                <div className={styles.posterContainer}>
+                                                    {movie.posterUrl ? (
+                                                        <img src={movie.posterUrl} alt={movie.title} className={styles.poster} />
+                                                    ) : (
+                                                        <div className={styles.posterPlaceholder}>
+                                                            <Icon name="film" size="large" />
                                                         </div>
                                                     )}
-                                                    {movie.streamingPlatforms && movie.streamingPlatforms.length > 0 && (
-                                                        <StreamingPlatformBadge platforms={movie.streamingPlatforms} size="small" />
+                                                    {isWatched && (
+                                                        <div className={styles.watchedBadge}>
+                                                            <Icon name="check-circle" size="medium" />
+                                                        </div>
                                                     )}
+                                                    <div className={styles.cardActions}>
+                                                        {!isWatched && (
+                                                            <button
+                                                                className={styles.cardActionButton}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleMarkAsWatched(movie.tmdbId);
+                                                                }}
+                                                                title="Mark Watched"
+                                                            >
+                                                                <Icon name="check-circle" size="medium" />
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            className={styles.cardActionButton}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRecommendToCircles(movie);
+                                                            }}
+                                                            title="Recommend to Circles"
+                                                        >
+                                                            <Icon name="users" size="medium" />
+                                                        </button>
+                                                        <button
+                                                            className={styles.cardActionButton}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleOpenDiscussion(movie);
+                                                            }}
+                                                            title="Discuss Movie"
+                                                        >
+                                                            <Icon name="message-square" size="medium" />
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </Card>
-                                    ))}
+                                                <div className={styles.movieInfo}>
+                                                    <h3 className={styles.movieTitle}>{movie.title}</h3>
+                                                    {movie.year && <p className={styles.year}>{movie.year}</p>}
+                                                    <div className={styles.movieMeta}>
+                                                        {movie.voteAverage && (
+                                                            <div className={styles.rating}>
+                                                                <Icon name="star" size="small" />
+                                                                <span>{movie.voteAverage.toFixed(1)}</span>
+                                                            </div>
+                                                        )}
+                                                        {movie.streamingPlatforms && movie.streamingPlatforms.length > 0 && (
+                                                            <StreamingPlatformBadge platforms={movie.streamingPlatforms} size="small" />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </Card>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className={styles.empty}>
-                                    <div className={styles.emptyIcon}>
-                                        {watchstreamView === 'backlog' ? '📚' : '✅'}
-                                    </div>
-                                    <h3 className={styles.emptyTitle}>
-                                        {watchstreamView === 'backlog' ? 'No movies in backlog' : 'No watched movies'}
-                                    </h3>
+                                    <div className={styles.emptyIcon}>📚</div>
+                                    <h3 className={styles.emptyTitle}>No movies yet</h3>
                                     <p className={styles.emptyText}>
-                                        {watchstreamView === 'backlog'
-                                            ? 'Add movies to start building your watchlist'
-                                            : 'Mark movies as watched to see them here'}
+                                        Add movies to start building your watchlist
                                     </p>
                                 </div>
                             )}
                         </>
                     )}
+
+                    {/* Floating Action Button */}
+                    <button
+                        className={styles.fab}
+                        onClick={() => setShowAddMovieModal(true)}
+                        title="Add Movie"
+                    >
+                        <Icon name="plus" size="large" />
+                    </button>
                 </div>
             )}
 

@@ -8,6 +8,8 @@ import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { SearchBar } from '../components/SearchBar';
 import { StreamingPlatformBadge } from '../components/StreamingPlatformBadge';
+import { RecommendToCirclesModal } from '../components/RecommendToCirclesModal';
+import { DiscussionDrawer } from '../components/DiscussionDrawer';
 import styles from './WatchstreamDetail.module.css';
 
 export function WatchstreamDetail() {
@@ -17,6 +19,10 @@ export function WatchstreamDetail() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'backlog' | 'watched'>('backlog');
     const [showAddMovieModal, setShowAddMovieModal] = useState(false);
+    const [showCirclesModal, setShowCirclesModal] = useState(false);
+    const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+    const [showDiscussionDrawer, setShowDiscussionDrawer] = useState(false);
+    const [discussionMovie, setDiscussionMovie] = useState<any | null>(null);
 
     useEffect(() => {
         if (id) {
@@ -83,6 +89,21 @@ export function WatchstreamDetail() {
         }
     };
 
+    const handleRecommendToCircles = (movie: Movie) => {
+        setSelectedMovie(movie);
+        setShowCirclesModal(true);
+    };
+
+    const handleCirclesSuccess = () => {
+        setShowCirclesModal(false);
+        setSelectedMovie(null);
+    };
+
+    const handleOpenDiscussion = (item: any) => {
+        setDiscussionMovie(item);
+        setShowDiscussionDrawer(true);
+    };
+
     const currentMovies = activeTab === 'backlog' ? backlogMovies : watchedMovies;
 
     if (loading) {
@@ -98,16 +119,7 @@ export function WatchstreamDetail() {
             <div className={styles.header}>
                 <div className={styles.headerContent}>
                     <h1 className={styles.title}>Watchstream</h1>
-                    <div className={styles.stats}>
-                        <span className={styles.statItem}>{backlogMovies.length} to watch</span>
-                        <span className={styles.statDivider}>·</span>
-                        <span className={styles.statItem}>{watchedMovies.length} watched</span>
-                    </div>
                 </div>
-                <Button onClick={() => setShowAddMovieModal(true)}>
-                    <Icon name="plus" size="small" />
-                    Add Movie
-                </Button>
                 <div className={styles.tabs}>
                     <button
                         className={activeTab === 'backlog' ? styles.tabActive : styles.tab}
@@ -129,7 +141,11 @@ export function WatchstreamDetail() {
             {currentMovies.length > 0 ? (
                 <div className={styles.grid}>
                     {currentMovies.map((movie) => (
-                        <Card key={movie.tmdbId} className={styles.movieCard}>
+                        <Card
+                            key={movie.tmdbId}
+                            className={`${styles.movieCard} ${styles.clickableCard}`}
+                            onClick={() => handleOpenDiscussion(movie)}
+                        >
                             <div className={styles.posterContainer}>
                                 {movie.posterUrl ? (
                                     <img
@@ -142,27 +158,39 @@ export function WatchstreamDetail() {
                                         <Icon name="film" size="large" />
                                     </div>
                                 )}
-                                <div className={styles.overlay}>
-                                    {activeTab === 'backlog' ? (
-                                        <Button
-                                            size="small"
-                                            onClick={() => handleMarkAsWatched(movie.tmdbId)}
-                                            className={styles.statusButton}
+                                <div className={styles.cardActions}>
+                                    {activeTab === 'backlog' && (
+                                        <button
+                                            className={styles.cardActionButton}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleMarkAsWatched(movie.tmdbId);
+                                            }}
+                                            title="Mark Watched"
                                         >
-                                            <Icon name="check-circle" size="small" />
-                                            Mark Watched
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            size="small"
-                                            variant="secondary"
-                                            onClick={() => handleMarkAsBacklog(movie.tmdbId)}
-                                            className={styles.statusButton}
-                                        >
-                                            <Icon name="bookmark" size="small" />
-                                            Rewatch
-                                        </Button>
+                                            <Icon name="check-circle" size="medium" />
+                                        </button>
                                     )}
+                                    <button
+                                        className={styles.cardActionButton}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRecommendToCircles(movie);
+                                        }}
+                                        title="Recommend to Circles"
+                                    >
+                                        <Icon name="users" size="medium" />
+                                    </button>
+                                    <button
+                                        className={styles.cardActionButton}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenDiscussion(movie);
+                                        }}
+                                        title="Discuss Movie"
+                                    >
+                                        <Icon name="message-square" size="medium" />
+                                    </button>
                                 </div>
                             </div>
                             <div className={styles.movieInfo}>
@@ -199,6 +227,15 @@ export function WatchstreamDetail() {
                 </div>
             )}
 
+            {/* Floating Action Button */}
+            <button
+                className={styles.fab}
+                onClick={() => setShowAddMovieModal(true)}
+                title="Add Movie"
+            >
+                <Icon name="plus" size="large" />
+            </button>
+
             <Modal
                 isOpen={showAddMovieModal}
                 onClose={() => setShowAddMovieModal(false)}
@@ -209,6 +246,24 @@ export function WatchstreamDetail() {
                     showPlatformSelection={true}
                 />
             </Modal>
+
+            {selectedMovie && (
+                <RecommendToCirclesModal
+                    isOpen={showCirclesModal}
+                    onClose={() => setShowCirclesModal(false)}
+                    movie={selectedMovie}
+                    onSuccess={handleCirclesSuccess}
+                />
+            )}
+
+            {discussionMovie && (
+                <DiscussionDrawer
+                    isOpen={showDiscussionDrawer}
+                    onClose={() => setShowDiscussionDrawer(false)}
+                    movie={discussionMovie}
+                    circleMovieId={discussionMovie.circleMovieId}
+                />
+            )}
         </div>
     );
 }

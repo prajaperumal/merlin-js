@@ -95,6 +95,10 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
+.clickableCard {
+    cursor: pointer;
+}
+
 /* Poster */
 .posterContainer {
     position: relative;
@@ -226,4 +230,79 @@
     text-align: center;
     padding: var(--spacing-2xl);
     color: var(--color-text-secondary);
+}
+
+/* Card Actions */
+.cardActions {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 40%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+    z-index: 1;
+}
+
+.movieCard:hover .cardActions {
+    opacity: 1;
+}
+
+.cardActionButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.cardActionButton:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.cardActionButton:active {
+    transform: translateY(0);
+}
+
+/* Floating Action Button */
+.fab {
+    position: fixed;
+    bottom: var(--spacing-2xl);
+    right: var(--spacing-2xl);
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    z-index: 100;
+}
+
+.fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.fab:active {
+    transform: scale(1.05);
 }
