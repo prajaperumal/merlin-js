@@ -27,8 +27,34 @@ A modern movie search and discovery application built with TypeScript, Hono, and
 
 ## Getting Started
 
-### Prerequisites
+### Two Ways to Run Merlin
 
+#### Option 1: Docker (Recommended) 🐳
+
+The easiest way to run Merlin with all dependencies included.
+
+**Prerequisites:**
+- Docker Desktop (or Docker Engine + Docker Compose)
+- TMDB API key
+- Google OAuth credentials
+
+See [DOCKER.md](DOCKER.md) for complete Docker setup instructions.
+
+**Quick Start:**
+```bash
+# 1. Copy and configure environment
+cp .env.docker .env.docker.local
+# Edit .env.docker.local with your API keys
+
+# 2. Start the application
+docker-compose --env-file .env.docker.local up -d
+
+# 3. Access at http://localhost:8000
+```
+
+#### Option 2: Local Development
+
+**Prerequisites:**
 - Node.js 18+ (or use nvm/fnm)
 - PostgreSQL database
 - TMDB API key

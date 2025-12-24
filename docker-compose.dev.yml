@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres:
+    image: postgres:16-alpine
+    container_name: merlin-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: merlin
+      POSTGRES_PASSWORD: merlin_password
+      POSTGRES_DB: merlin
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U merlin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Development server with hot reload
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: server-dev
+    container_name: merlin-server-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://merlin:merlin_password@postgres:5432/merlin
+      PORT: 8000
+      NODE_ENV: development
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/auth/callback}
+      SESSION_SECRET: ${SESSION_SECRET}
+    volumes:
+      - ./server:/app/server
+      - /app/server/node_modules
+      - /app/node_modules
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "cd /app/server && npx prisma migrate deploy && npm run dev"
+
+  # Development client with hot reload
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: client-dev
+    container_name: merlin-client-dev
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:8000
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: sh -c "cd /app/client && npm run dev -- --host 0.0.0.0"
+
+volumes:
+  postgres_dev_data:
+    driver: local
