@@ -14,7 +14,57 @@ auth.get('/google/url', (c) => {
     return c.json({ url });
 });
 
-// Handle OAuth callback
+// Handle OAuth callback from Google (GET redirect)
+auth.get('/callback', async (c) => {
+    const code = c.req.query('code');
+    const error = c.req.query('error');
+
+    if (error) {
+        console.error('OAuth error:', error);
+        return c.redirect('/?error=' + encodeURIComponent(error));
+    }
+
+    if (!code) {
+        return c.redirect('/?error=no_code');
+    }
+
+    try {
+        console.log('--- Google Callback Start (GET) ---');
+        const user = await authService.authenticateWithCode(code);
+        console.log('User authenticated:', user.email);
+
+        // Create session
+        const session: AuthSession = {
+            userId: user.id,
+            email: user.email,
+            name: user.name,
+            picture: user.picture,
+        };
+
+        // Set session cookie
+        const cookieValue = encodeURIComponent(JSON.stringify(session));
+        setCookie(c, 'session', cookieValue, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Lax',
+            maxAge: 60 * 60 * 24 * 30, // 30 days
+            path: '/',
+        });
+
+        console.log('Session cookie set for user:', user.email);
+        console.log('--- Google Callback Success ---');
+
+        // Redirect to home page after successful login
+        return c.redirect('/');
+    } catch (error) {
+        console.error('--- Google Callback Error ---');
+        console.error('Auth error detail:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+        return c.redirect('/?error=' + encodeURIComponent(errorMessage));
+    }
+});
+
+// Handle OAuth callback (POST - for API clients)
 auth.post('/google/callback', async (c) => {
     const { code } = await c.req.json();
 
@@ -23,7 +73,7 @@ auth.post('/google/callback', async (c) => {
     }
 
     try {
-        console.log('--- Google Callback Start ---');
+        console.log('--- Google Callback Start (POST) ---');
         const user = await authService.authenticateWithCode(code);
         console.log('User authenticated:', user.email);
 
