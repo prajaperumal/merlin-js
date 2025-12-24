@@ -4,7 +4,6 @@ import { api } from '../services/api';
 import { Movie, StreamingPlatform } from '../types';
 import { Card } from '../components/ui/Card';
 import { Icon } from '../components/ui/Icon';
-import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { SearchBar } from '../components/SearchBar';
 import { StreamingPlatformBadge } from '../components/StreamingPlatformBadge';
@@ -68,21 +67,6 @@ export function WatchstreamDetail() {
             if (movie) {
                 setBacklogMovies(prev => prev.filter(m => m.tmdbId !== movieTmdbId));
                 setWatchedMovies(prev => [movie, ...prev]);
-            }
-        } catch (error) {
-            console.error('Failed to update movie status:', error);
-        }
-    };
-
-    const handleMarkAsBacklog = async (movieTmdbId: number) => {
-        if (!id) return;
-        try {
-            const movie = watchedMovies.find(m => m.tmdbId === movieTmdbId);
-            await api.updateMovieStatus(parseInt(id), movieTmdbId, 'backlog', movie?.streamingPlatforms);
-            // Move from watched to backlog
-            if (movie) {
-                setWatchedMovies(prev => prev.filter(m => m.tmdbId !== movieTmdbId));
-                setBacklogMovies(prev => [movie, ...prev]);
             }
         } catch (error) {
             console.error('Failed to update movie status:', error);

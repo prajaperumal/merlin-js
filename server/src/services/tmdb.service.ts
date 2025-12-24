@@ -18,7 +18,7 @@ export class TMDBService {
                 throw new Error(`TMDB API error: ${response.statusText}`);
             }
 
-            const data = await response.json();
+            const data = await response.json() as { results?: any[] };
             return this.transformMovies(data.results || []);
         } catch (error) {
             console.error('Error searching movies:', error);

@@ -4,7 +4,11 @@ import { CircleRepository } from '../repositories/circle.repository.js';
 import { UserRepository } from '../repositories/user.repository.js';
 import type { AuthSession } from '../types/index.js';
 
-const circles = new Hono();
+type Variables = {
+    user: AuthSession;
+};
+
+const circles = new Hono<{ Variables: Variables }>();
 const circleRepo = new CircleRepository();
 const userRepo = new UserRepository();
 
@@ -13,7 +17,7 @@ circles.use('/*', authMiddleware);
 
 // Get user's circles
 circles.get('/', async (c) => {
-    const session = (c as any).get('user') as AuthSession;
+    const session = c.get('user');
     const userCircles = await circleRepo.getUserCircles(session.userId);
     const pendingInvitations = await circleRepo.getPendingInvitations(session.userId);
 
@@ -25,7 +29,7 @@ circles.get('/', async (c) => {
 
 // Create circle
 circles.post('/', async (c) => {
-    const session = (c as any).get('user') as AuthSession;
+    const session = c.get('user');
     const { name, description } = await c.req.json();
 
     if (!name) {
@@ -57,7 +61,7 @@ circles.delete('/:id', async (c) => {
 
 // Invite member
 circles.post('/:id/invite', async (c) => {
-    const session = (c as any).get('user') as AuthSession;
+    const session = c.get('user');
     const id = parseInt(c.req.param('id'));
     const { email } = await c.req.json();
 
@@ -82,7 +86,7 @@ circles.post('/:id/invite', async (c) => {
 
 // Accept invitation
 circles.post('/:id/accept', async (c) => {
-    const session = (c as any).get('user') as AuthSession;
+    const session = c.get('user');
     const id = parseInt(c.req.param('id'));
 
     await circleRepo.acceptInvitation(id, session.userId);
@@ -91,7 +95,7 @@ circles.post('/:id/accept', async (c) => {
 
 // Decline invitation
 circles.post('/:id/decline', async (c) => {
-    const session = (c as any).get('user') as AuthSession;
+    const session = c.get('user');
     const id = parseInt(c.req.param('id'));
 
     await circleRepo.declineInvitation(id, session.userId);
@@ -116,7 +120,7 @@ circles.get('/:id/movies', async (c) => {
 
 // Add movie to circle
 circles.post('/:id/movies', async (c) => {
-    const session = (c as any).get('user') as AuthSession;
+    const session = c.get('user');
     const id = parseInt(c.req.param('id'));
     const { movieTmdbId, recommendation, streamingPlatforms } = await c.req.json();
 
@@ -162,7 +166,7 @@ circles.get('/movies/:circleMovieId/comments', async (c) => {
 
 // Add comment to a circle movie
 circles.post('/movies/:circleMovieId/comments', async (c) => {
-    const session = (c as any).get('user') as AuthSession;
+    const session = c.get('user');
     const circleMovieId = parseInt(c.req.param('circleMovieId'));
     const { content } = await c.req.json();
 

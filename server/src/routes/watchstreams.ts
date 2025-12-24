@@ -5,7 +5,11 @@ import { MovieRepository } from '../repositories/movie.repository.js';
 import { TMDBService } from '../services/tmdb.service.js';
 import type { AuthSession } from '../types/index.js';
 
-const watchstreams = new Hono();
+type Variables = {
+    user: AuthSession;
+};
+
+const watchstreams = new Hono<{ Variables: Variables }>();
 const watchstreamRepo = new WatchstreamRepository();
 const movieRepo = new MovieRepository();
 const tmdbService = new TMDBService();
