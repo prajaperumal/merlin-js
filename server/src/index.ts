@@ -24,7 +24,21 @@ const app = new Hono();
 // Middleware
 app.use('*', logger());
 app.use('*', cors({
-    origin: 'http://localhost:3000',
+    origin: (origin) => {
+        // Allow requests from the same origin (production) or localhost (development)
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://localhost:8000',
+        ];
+
+        // In production, if no origin header (same-origin) or if it's an allowed origin
+        if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+            return origin || '*';
+        }
+
+        // Also allow the request origin if it matches the host (for Caddy reverse proxy)
+        return origin;
+    },
     credentials: true,
 }));
 app.use('*', errorMiddleware);
