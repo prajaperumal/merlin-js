@@ -1,6 +1,15 @@
 #!/bin/bash
 # Merlin Production Deployment Script for systemd
-# Run this on your production server
+#
+# This script will:
+# 1. Pull latest code (if git repo)
+# 2. Install dependencies
+# 3. Build client and server
+# 4. Generate Prisma client and sync database schema
+# 5. Create/update systemd service
+# 6. Start the application
+#
+# Run this on your production server as your application user (not root)
 
 set -e
 
@@ -60,17 +69,24 @@ npm run build
 # Setup database
 cd server
 echo "Setting up database..."
+echo "Generating Prisma client..."
 npx prisma generate
 
-# Push schema to database (creates tables if they don't exist)
-echo "Pushing database schema..."
-npx prisma db push --accept-data-loss --skip-generate || {
-    echo "db push failed, trying migrate deploy..."
-    npx prisma migrate deploy || {
-        echo "WARNING: Database setup failed! Tables may not exist."
-        echo "You may need to run 'cd server && npx prisma db push' manually."
-    }
-}
+# Push schema to database (creates/updates all tables)
+echo "Pushing database schema to sync with code..."
+if npx prisma db push --accept-data-loss --skip-generate; then
+    echo "✓ Database schema updated successfully"
+else
+    echo "⚠ db push failed, trying migrate deploy..."
+    if npx prisma migrate deploy; then
+        echo "✓ Migrations applied successfully"
+    else
+        echo "❌ ERROR: Database setup failed!"
+        echo "Tables may not exist or be outdated."
+        echo "Please run manually: cd server && npx prisma db push"
+        # Don't exit, let the service try to start anyway
+    fi
+fi
 
 # Start server (which serves the built client)
 echo "Starting server..."

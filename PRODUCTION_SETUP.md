@@ -96,10 +96,16 @@ cd /home/ubuntu/merlin-js
 ```
 
 This script will:
+- Pull latest code (if git repo exists)
+- Install dependencies
+- Build client and server
+- **Generate Prisma client and sync database schema**
 - Create the production startup script
 - Create the systemd service file
 - Enable and start the service
 - Show you the service status
+
+**Note**: The deployment script automatically runs `npx prisma db push` to keep your database schema in sync with your code. This means new tables (like `circle_invitations`) will be created automatically during deployment.
 
 ### 5. Configure Caddy
 
@@ -151,7 +157,25 @@ sudo systemctl is-enabled merlin
 
 ## Deploying Updates
 
-When you have new code to deploy:
+### Recommended: Use the Deployment Script
+
+The easiest way to deploy updates:
+
+```bash
+cd /home/ubuntu/merlin-js
+./deploy-systemd.sh
+```
+
+This automatically handles:
+- Pulling latest code
+- Installing dependencies
+- Building the app
+- **Syncing database schema with `npx prisma db push`**
+- Restarting the service
+
+### Manual Deployment (if needed)
+
+If you prefer to deploy manually:
 
 ```bash
 cd /home/ubuntu/merlin-js
@@ -165,9 +189,10 @@ npm install
 # Build the application
 npm run build
 
-# Run migrations if needed
+# IMPORTANT: Sync database schema
 cd server
-npx prisma migrate deploy
+npx prisma generate
+npx prisma db push
 cd ..
 
 # Restart the service
@@ -177,10 +202,7 @@ sudo systemctl restart merlin
 sudo journalctl -u merlin -f
 ```
 
-Or use the deployment script:
-```bash
-./deploy-systemd.sh
-```
+**⚠️ Important**: Always run `npx prisma db push` after pulling new code to ensure your database schema matches your code. Missing this step causes errors like "Cannot read properties of undefined (reading 'create')".
 
 ## Troubleshooting
 
@@ -210,9 +232,9 @@ npx prisma db pull  # This will test the connection
 
 ### Prisma migration errors
 
-**Error: "The table `public.users` does not exist in the current database" (P2021)**
+**Error: "The table `public.users` does not exist" (P2021) or "Cannot read properties of undefined (reading 'create')"**
 
-This means the database schema hasn't been created yet:
+This means the database schema hasn't been created or is outdated:
 
 ```bash
 cd /home/ubuntu/merlin-js/server
@@ -227,6 +249,8 @@ npx prisma db push
 cd ..
 sudo systemctl restart merlin
 ```
+
+**Note**: The "Cannot read properties of undefined (reading 'create')" error occurs when your code tries to access a Prisma model (like `prisma.circleInvitation.create()`) but that table doesn't exist in the database yet. Running `npx prisma db push` will create all missing tables.
 
 If you get "database is not empty" errors:
 
