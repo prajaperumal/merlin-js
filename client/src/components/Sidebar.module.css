@@ -184,14 +184,36 @@
 
 /* Badge */
 .badge {
-    background: var(--gradient-primary);
-    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-secondary);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
     padding: 2px 8px;
     border-radius: var(--radius-full);
     min-width: 20px;
     text-align: center;
+}
+
+.badgeAlert {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.7);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Circles List */

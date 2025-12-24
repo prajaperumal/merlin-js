@@ -62,11 +62,15 @@ cd server
 echo "Setting up database..."
 npx prisma generate
 
-# Try db push first (simpler for existing databases)
-if ! npx prisma db push --skip-generate 2>/dev/null; then
-    echo "Attempting migration deploy..."
-    npx prisma migrate deploy || true
-fi
+# Push schema to database (creates tables if they don't exist)
+echo "Pushing database schema..."
+npx prisma db push --accept-data-loss --skip-generate || {
+    echo "db push failed, trying migrate deploy..."
+    npx prisma migrate deploy || {
+        echo "WARNING: Database setup failed! Tables may not exist."
+        echo "You may need to run 'cd server && npx prisma db push' manually."
+    }
+}
 
 # Start server (which serves the built client)
 echo "Starting server..."

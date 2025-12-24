@@ -10,6 +10,7 @@ import styles from './Circles.module.css';
 export function Circles() {
     const [ownedCircles, setOwnedCircles] = useState<Circle[]>([]);
     const [memberCircles, setMemberCircles] = useState<Circle[]>([]);
+    const [pendingInvitations, setPendingInvitations] = useState<any[]>([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newName, setNewName] = useState('');
     const [newDescription, setNewDescription] = useState('');
@@ -22,6 +23,7 @@ export function Circles() {
         const data = await api.getCircles();
         setOwnedCircles(data.owned);
         setMemberCircles(data.member);
+        setPendingInvitations(data.pendingInvitations || []);
     };
 
     const handleCreate = async () => {
@@ -30,6 +32,24 @@ export function Circles() {
         setNewDescription('');
         setShowCreateModal(false);
         loadCircles();
+    };
+
+    const handleAccept = async (circleId: number) => {
+        try {
+            await api.acceptInvitation(circleId);
+            loadCircles();
+        } catch (err) {
+            console.error('Failed to accept invitation:', err);
+        }
+    };
+
+    const handleDecline = async (circleId: number) => {
+        try {
+            await api.declineInvitation(circleId);
+            loadCircles();
+        } catch (err) {
+            console.error('Failed to decline invitation:', err);
+        }
     };
 
     const allCircles = [...ownedCircles.map(c => ({ ...c, isOwner: true })), ...memberCircles.map(c => ({ ...c, isOwner: false }))];
@@ -53,6 +73,39 @@ export function Circles() {
                     </Button>
                 )}
             </div>
+
+            {pendingInvitations.length > 0 && (
+                <div className={styles.section}>
+                    <h2 className={styles.sectionTitle}>Invitations</h2>
+                    <div className={styles.invitationsList}>
+                        {pendingInvitations.map((inv) => (
+                            <div key={inv.circle.id} className={styles.invitationCard}>
+                                <div className={styles.invitationInfo}>
+                                    <div className={styles.invitationAvatar}>
+                                        {inv.circle.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <h3 className={styles.invitationTitle}>
+                                            You've been invited to join <strong>{inv.circle.name}</strong>
+                                        </h3>
+                                        <p className={styles.invitationMeta}>
+                                            {inv.circle.description || 'No description'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className={styles.invitationActions}>
+                                    <Button size="small" variant="secondary" onClick={() => handleDecline(inv.circle.id)}>
+                                        Decline
+                                    </Button>
+                                    <Button size="small" onClick={() => handleAccept(inv.circle.id)}>
+                                        Accept
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {allCircles.length > 0 ? (
                 <div className={styles.circlesGrid}>

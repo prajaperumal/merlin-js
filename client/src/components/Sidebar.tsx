@@ -14,6 +14,7 @@ export function Sidebar() {
     const [circlesExpanded, setCirclesExpanded] = useState(true);
     const [watchstreams, setWatchstreams] = useState<Watchstream[]>([]);
     const [circles, setCircles] = useState<{ owned: Circle[]; member: Circle[] }>({ owned: [], member: [] });
+    const [pendingCount, setPendingCount] = useState(0);
 
     useEffect(() => {
         loadWatchstreams();
@@ -33,6 +34,7 @@ export function Sidebar() {
         try {
             const data = await api.getCircles();
             setCircles({ owned: data.owned, member: data.member });
+            setPendingCount(data.pendingInvitations?.length || 0);
         } catch (err) {
             console.error('Failed to load circles:', err);
         }
@@ -104,6 +106,9 @@ export function Sidebar() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
                             <Icon name="users-group" size="medium" />
                             <span>Circles</span>
+                            {pendingCount > 0 && (
+                                <span className={`${styles.badge} ${styles.badgeAlert}`}>{pendingCount}</span>
+                            )}
                             {[...circles.owned, ...circles.member].length > 0 && (
                                 <span className={styles.badge}>{[...circles.owned, ...circles.member].length}</span>
                             )}

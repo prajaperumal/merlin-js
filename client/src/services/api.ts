@@ -172,17 +172,25 @@ class ApiService {
     }
 
     async acceptInvitation(circleId: number): Promise<void> {
-        await fetch(`${API_BASE}/circles/${circleId}/accept`, {
+        const res = await fetch(`${API_BASE}/circles/${circleId}/accept`, {
             method: 'POST',
             credentials: 'include',
         });
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to accept invitation');
+        }
     }
 
     async declineInvitation(circleId: number): Promise<void> {
-        await fetch(`${API_BASE}/circles/${circleId}/decline`, {
+        const res = await fetch(`${API_BASE}/circles/${circleId}/decline`, {
             method: 'POST',
             credentials: 'include',
         });
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to decline invitation');
+        }
     }
 
     async removeMember(circleId: number, userId: number): Promise<void> {

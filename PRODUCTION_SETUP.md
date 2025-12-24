@@ -12,6 +12,14 @@ Quick reference for deploying Merlin to production with systemd and Caddy.
 
 ## Quick Setup
 
+### 0. Quick Fix for Common Issues
+
+**Getting "table does not exist" errors?** Run this one-liner:
+
+```bash
+cd /home/ubuntu/merlin-js && ./setup-database.sh && sudo systemctl restart merlin
+```
+
 ### 1. Initial Server Setup
 
 ```bash
@@ -201,6 +209,24 @@ npx prisma db pull  # This will test the connection
 ```
 
 ### Prisma migration errors
+
+**Error: "The table `public.users` does not exist in the current database" (P2021)**
+
+This means the database schema hasn't been created yet:
+
+```bash
+cd /home/ubuntu/merlin-js/server
+
+# Generate Prisma client first
+npx prisma generate
+
+# Push schema to create all tables
+npx prisma db push
+
+# Restart the service
+cd ..
+sudo systemctl restart merlin
+```
 
 If you get "database is not empty" errors:
 

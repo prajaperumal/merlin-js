@@ -11,6 +11,7 @@ import { StreamingPlatformBadge } from '../components/StreamingPlatformBadge';
 import { AddToWatchstreamModal } from '../components/AddToWatchstreamModal';
 import { RecommendToCirclesModal } from '../components/RecommendToCirclesModal';
 import { DiscussionDrawer } from '../components/DiscussionDrawer';
+import { Input } from '../components/ui/Input';
 import styles from './Home.module.css';
 
 type AppMode = 'discover' | 'watchstream';
@@ -41,6 +42,7 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
     // Discover mode state
     const [circleMovies, setCircleMovies] = useState<CircleMovie[]>([]);
     const [circles, setCircles] = useState<CircleWithMembers[]>([]);
+    const [pendingInvitations, setPendingInvitations] = useState<any[]>([]);
     const [selectedCircleFilter, setSelectedCircleFilter] = useState<number | null>(null);
 
     // Watchstream mode state
@@ -61,6 +63,11 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
     const [showCirclesModal, setShowCirclesModal] = useState(false);
     const [showDiscussionDrawer, setShowDiscussionDrawer] = useState(false);
     const [discussionMovie, setDiscussionMovie] = useState<any | null>(null);
+    const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
+    const [newCircleName, setNewCircleName] = useState('');
+    const [newCircleDescription, setNewCircleDescription] = useState('');
+    const [showCreateWatchstreamModal, setShowCreateWatchstreamModal] = useState(false);
+    const [newWatchstreamName, setNewWatchstreamName] = useState('');
 
     useEffect(() => {
         if (user) {
@@ -94,6 +101,7 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
     const loadCircleMovies = async () => {
         try {
             const circlesData = await api.getCircles();
+            setPendingInvitations(circlesData.pendingInvitations || []);
             const allCircles = [...circlesData.owned, ...circlesData.member];
 
             // Load movies and member details from all circles
@@ -225,6 +233,53 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
         setShowCirclesModal(true);
     };
 
+    const handleCreateCircle = async () => {
+        if (!newCircleName.trim()) return;
+        try {
+            await api.createCircle(newCircleName.trim(), newCircleDescription.trim());
+            setShowCreateCircleModal(false);
+            setNewCircleName('');
+            setNewCircleDescription('');
+            // Reload circles
+            loadCircleMovies();
+        } catch (error: any) {
+            console.error('Failed to create circle:', error);
+            alert(error.message || 'Failed to create circle');
+        }
+    };
+
+    const handleCreateWatchstream = async () => {
+        if (!newWatchstreamName.trim()) return;
+        try {
+            await api.createWatchstream(newWatchstreamName.trim());
+            setShowCreateWatchstreamModal(false);
+            setNewWatchstreamName('');
+            // Reload watchstreams
+            loadWatchstreams();
+        } catch (error: any) {
+            console.error('Failed to create watchstream:', error);
+            alert(error.message || 'Failed to create watchstream');
+        }
+    };
+
+    const handleAcceptInvitation = async (circleId: number) => {
+        try {
+            await api.acceptInvitation(circleId);
+            loadData();
+        } catch (error) {
+            console.error('Failed to accept invitation:', error);
+        }
+    };
+
+    const handleDeclineInvitation = async (circleId: number) => {
+        try {
+            await api.declineInvitation(circleId);
+            loadData();
+        } catch (error) {
+            console.error('Failed to decline invitation:', error);
+        }
+    };
+
     const handleCirclesSuccess = () => {
         setShowCirclesModal(false);
         setSelectedMovie(null);
@@ -276,26 +331,70 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                 <div className={styles.discoverLayout}>
                     <div className={styles.mainContent}>
 
-                        {/* Circle Filters */}
-                        {circles.length > 0 && (
-                            <div className={styles.filters}>
-                                <button
-                                    className={selectedCircleFilter === null ? styles.filterActive : styles.filter}
-                                    onClick={() => setSelectedCircleFilter(null)}
-                                >
-                                    All Circles
-                                </button>
-                                {circles.map(circle => (
-                                    <button
-                                        key={circle.id}
-                                        className={selectedCircleFilter === circle.id ? styles.filterActive : styles.filter}
-                                        onClick={() => setSelectedCircleFilter(circle.id)}
-                                    >
-                                        {circle.name}
-                                    </button>
+                        {/* Pending Invitations Banner */}
+                        {pendingInvitations.length > 0 && (
+                            <div className={styles.invitationsBanner}>
+                                {pendingInvitations.map(inv => (
+                                    <div key={inv.circle.id} className={styles.invitationCard}>
+                                        <div className={styles.invitationContent}>
+                                            <div className={styles.invitationIcon}>🎬</div>
+                                            <div className={styles.invitationText}>
+                                                <strong>{inv.circle.name}</strong> invited you to join!
+                                            </div>
+                                        </div>
+                                        <div className={styles.invitationActions}>
+                                            <Button
+                                                variant="secondary"
+                                                size="small"
+                                                className={styles.declineButton}
+                                                onClick={() => handleDeclineInvitation(inv.circle.id)}
+                                            >
+                                                Decline
+                                            </Button>
+                                            <Button
+                                                variant="primary"
+                                                size="small"
+                                                className={styles.acceptButton}
+                                                onClick={() => handleAcceptInvitation(inv.circle.id)}
+                                            >
+                                                Accept
+                                            </Button>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         )}
+
+                        {/* Circle Filters */}
+                        <div className={styles.filters}>
+                            {circles.length > 0 && (
+                                <>
+                                    <button
+                                        className={selectedCircleFilter === null ? styles.filterActive : styles.filter}
+                                        onClick={() => setSelectedCircleFilter(null)}
+                                    >
+                                        All Circles
+                                    </button>
+                                    {circles.map(circle => (
+                                        <button
+                                            key={circle.id}
+                                            className={selectedCircleFilter === circle.id ? styles.filterActive : styles.filter}
+                                            onClick={() => setSelectedCircleFilter(circle.id)}
+                                        >
+                                            {circle.name}
+                                        </button>
+                                    ))}
+                                </>
+                            )}
+                            <button
+                                className={styles.createCircleButton}
+                                onClick={() => setShowCreateCircleModal(true)}
+                                title="Create new circle"
+                            >
+                                <Icon name="plus" size="small" />
+                                {circles.length === 0 && <span>Create Your First Circle</span>}
+                            </button>
+                        </div>
 
                         {/* Movies Grid */}
                         {filteredCircleMovies.length > 0 ? (
@@ -385,8 +484,16 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                                 <div className={styles.emptyIcon}>🎬</div>
                                 <h3 className={styles.emptyTitle}>No movies yet</h3>
                                 <p className={styles.emptyText}>
-                                    Join or create circles to see movie recommendations
+                                    {circles.length === 0
+                                        ? 'Create your first circle to start sharing movie recommendations with friends'
+                                        : 'Join or create circles to see movie recommendations'
+                                    }
                                 </p>
+                                {circles.length === 0 && (
+                                    <Button onClick={() => setShowCreateCircleModal(true)} variant="primary">
+                                        Create Your First Circle
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </div>
@@ -463,21 +570,31 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
             {mode === 'watchstream' && (
                 <div className={styles.content}>
                     {/* Watchstream Selector */}
-                    {watchstreams.length > 0 && (
-                        <div className={styles.watchstreamNavigation}>
-                            <div className={styles.watchstreamFilters}>
-                                {watchstreams.map(watchstream => (
-                                    <button
-                                        key={watchstream.id}
-                                        className={selectedWatchstreamId === watchstream.id ? styles.filterActive : styles.filter}
-                                        onClick={() => setSelectedWatchstreamId(watchstream.id)}
-                                    >
-                                        {watchstream.name}
-                                    </button>
-                                ))}
-                            </div>
+                    <div className={styles.watchstreamNavigation}>
+                        <div className={styles.watchstreamFilters}>
+                            {watchstreams.length > 0 && (
+                                <>
+                                    {watchstreams.map(watchstream => (
+                                        <button
+                                            key={watchstream.id}
+                                            className={selectedWatchstreamId === watchstream.id ? styles.filterActive : styles.filter}
+                                            onClick={() => setSelectedWatchstreamId(watchstream.id)}
+                                        >
+                                            {watchstream.name}
+                                        </button>
+                                    ))}
+                                </>
+                            )}
+                            <button
+                                className={styles.createCircleButton}
+                                onClick={() => setShowCreateWatchstreamModal(true)}
+                                title="Create new watchstream"
+                            >
+                                <Icon name="plus" size="small" />
+                                {watchstreams.length === 0 && <span>Create Your First Watchstream</span>}
+                            </button>
                         </div>
-                    )}
+                    </div>
 
                     {/* Empty State - No Watchstreams */}
                     {watchstreams.length === 0 ? (
@@ -485,7 +602,7 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                             <div className={styles.emptyIcon}>📺</div>
                             <h3 className={styles.emptyTitle}>No watchstreams yet</h3>
                             <p className={styles.emptyText}>
-                                Create a watchstream from the Watchstreams page to get started
+                                Create your first watchstream to start tracking movies
                             </p>
                         </div>
                     ) : (
@@ -740,6 +857,66 @@ export function Home({ mode, onModeChange: _onModeChange, onCountsChange }: Home
                     circleMovieId={discussionMovie.circleMovieId}
                 />
             )}
+
+            {/* Create Circle Modal */}
+            <Modal
+                isOpen={showCreateCircleModal}
+                onClose={() => {
+                    setShowCreateCircleModal(false);
+                    setNewCircleName('');
+                    setNewCircleDescription('');
+                }}
+                title="Create Circle"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setShowCreateCircleModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleCreateCircle} disabled={!newCircleName.trim()}>
+                            Create
+                        </Button>
+                    </>
+                }
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                    <Input
+                        placeholder="Circle name"
+                        value={newCircleName}
+                        onChange={(e) => setNewCircleName(e.target.value)}
+                    />
+                    <Input
+                        placeholder="Description (optional)"
+                        value={newCircleDescription}
+                        onChange={(e) => setNewCircleDescription(e.target.value)}
+                    />
+                </div>
+            </Modal>
+
+            {/* Create Watchstream Modal */}
+            <Modal
+                isOpen={showCreateWatchstreamModal}
+                onClose={() => {
+                    setShowCreateWatchstreamModal(false);
+                    setNewWatchstreamName('');
+                }}
+                title="Create Watchstream"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setShowCreateWatchstreamModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleCreateWatchstream} disabled={!newWatchstreamName.trim()}>
+                            Create
+                        </Button>
+                    </>
+                }
+            >
+                <Input
+                    placeholder="Watchstream name"
+                    value={newWatchstreamName}
+                    onChange={(e) => setNewWatchstreamName(e.target.value)}
+                />
+            </Modal>
         </div>
     );
 }

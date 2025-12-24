@@ -132,6 +132,15 @@ export class CircleRepository {
      */
     async inviteMember(circleId: number, userId: number, invitedBy: number) {
         try {
+            // First check if already a member or invited
+            const existing = await prisma.circleMember.findUnique({
+                where: {
+                    circleId_userId: { circleId, userId }
+                }
+            });
+
+            if (existing) return null;
+
             return await prisma.circleMember.create({
                 data: {
                     circleId,
@@ -146,6 +155,77 @@ export class CircleRepository {
             }
             throw error;
         }
+    }
+
+    /**
+     * Create an external invitation (for users not in the system)
+     */
+    async createExternalInvitation(circleId: number, email: string, invitedBy: number) {
+        try {
+            return await (prisma as any).circleInvitation.create({
+                data: {
+                    circleId,
+                    email,
+                    invitedBy,
+                },
+            });
+        } catch (error: any) {
+            if (error.code === 'P2002') {
+                return null; // Already invited
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Get all external invitations for an email
+     */
+    async getExternalInvitationsByEmail(email: string) {
+        return (prisma as any).circleInvitation.findMany({
+            where: { email },
+            include: {
+                circle: true,
+            },
+        });
+    }
+
+    /**
+     * Delete an external invitation
+     */
+    async deleteExternalInvitation(invitationId: number) {
+        return (prisma as any).circleInvitation.delete({
+            where: { id: invitationId },
+        });
+    }
+
+    /**
+     * Resolve pending external invitations for a new user
+     */
+    async resolvePendingInvitations(email: string, userId: number) {
+        // Find all external invitations for this email
+        const invitations = await (prisma as any).circleInvitation.findMany({
+            where: { email }
+        });
+
+        if (invitations.length === 0) return;
+
+        // Create CircleMember entries
+        await prisma.circleMember.createMany({
+            data: invitations.map((inv: any) => ({
+                circleId: inv.circleId,
+                userId: userId,
+                invitedBy: inv.invitedBy,
+                status: 'pending'
+            })),
+            skipDuplicates: true
+        });
+
+        // Delete the external invitations
+        await (prisma as any).circleInvitation.deleteMany({
+            where: { email }
+        });
+
+        console.log(`Resolved ${invitations.length} invitations for ${email}`);
     }
 
     /**

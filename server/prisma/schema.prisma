@@ -87,6 +87,7 @@ model Circle {
   updatedAt   DateTime       @updatedAt @map("updated_at")
   members     CircleMember[]
   movies      CircleMovie[]
+  invitations CircleInvitation[]
   owner       User           @relation("CircleOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
 
   @@map("circles")
@@ -136,4 +137,17 @@ model CircleMovieComment {
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("circle_movie_comments")
+}
+
+model CircleInvitation {
+  id        Int      @id @default(autoincrement())
+  email     String
+  circleId  Int      @map("circle_id")
+  invitedBy Int      @map("invited_by")
+  invitedAt DateTime @default(now()) @map("invited_at")
+
+  circle Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+
+  @@unique([email, circleId])
+  @@map("circle_invitations")
 }

@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { CircleRepository } from '../repositories/circle.repository.js';
 import { UserRepository } from '../repositories/user.repository.js';
+import { EmailService } from '../services/email.service.js';
 import type { AuthSession } from '../types/index.js';
 
 type Variables = {
@@ -11,6 +12,7 @@ type Variables = {
 const circles = new Hono<{ Variables: Variables }>();
 const circleRepo = new CircleRepository();
 const userRepo = new UserRepository();
+const emailService = new EmailService();
 
 // All routes require authentication
 circles.use('/*', authMiddleware);
@@ -69,19 +71,33 @@ circles.post('/:id/invite', async (c) => {
         return c.json({ error: 'Email is required' }, 400);
     }
 
+    // Get circle details for email content
+    const circle = await circleRepo.getCircleDetails(id);
+    if (!circle) {
+        return c.json({ error: 'Circle not found' }, 404);
+    }
+
     // Find user by email
     const user = await userRepo.getUserByEmail(email);
-    if (!user) {
-        return c.json({ error: 'User not found' }, 404);
+
+    if (user) {
+        // User exists, invite them directly
+        const invitation = await circleRepo.inviteMember(id, user.id, session.userId);
+        if (!invitation) {
+            return c.json({ error: 'User already invited or is a member' }, 409);
+        }
+    } else {
+        // User doesn't exist, create an external invitation
+        const externalInv = await circleRepo.createExternalInvitation(id, email, session.userId);
+        if (!externalInv) {
+            return c.json({ error: 'User already invited' }, 409);
+        }
     }
 
-    const invitation = await circleRepo.inviteMember(id, user.id, session.userId);
+    // Send mock email
+    await emailService.sendCircleInvite(email, circle.name, session.name || session.email);
 
-    if (!invitation) {
-        return c.json({ error: 'User already invited or is a member' }, 409);
-    }
-
-    return c.json({ success: true }, 201);
+    return c.json({ success: true, message: user ? 'Invitation sent to existing user' : 'Invitation sent to new user' }, 201);
 });
 
 // Accept invitation
