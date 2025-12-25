@@ -27,38 +27,15 @@ A modern movie search and discovery application built with TypeScript, Hono, and
 
 ## Getting Started
 
-### Two Ways to Run Merlin
-
-#### Option 1: Docker (Recommended) 🐳
-
-The easiest way to run Merlin with all dependencies included.
-
-**Prerequisites:**
-- Docker Desktop (or Docker Engine + Docker Compose)
-- TMDB API key
-- Google OAuth credentials
-
-See [DOCKER.md](DOCKER.md) for complete Docker setup instructions.
-
-**Quick Start:**
-```bash
-# 1. Copy and configure environment
-cp .env.docker .env.docker.local
-# Edit .env.docker.local with your API keys
-
-# 2. Start the application
-docker-compose --env-file .env.docker.local up -d
-
-# 3. Access at http://localhost:8000
-```
-
-#### Option 2: Local Development
-
 **Prerequisites:**
 - Node.js 18+ (or use nvm/fnm)
 - PostgreSQL database
 - TMDB API key
 - Google OAuth credentials
+
+### Quick Start
+
+See [docs/QUICK_START.md](docs/QUICK_START.md) for detailed setup instructions.
 
 ### Installation
 
@@ -197,6 +174,12 @@ The app uses a comprehensive design system with CSS variables:
 - **Spacing**: Consistent spacing scale
 - **Animations**: Smooth transitions and micro-interactions
 - **Components**: Reusable UI components with variants
+
+## Documentation
+
+- [Quick Start Guide](docs/QUICK_START.md) - Get started with local development
+- [Production Deployment](docs/PRODUCTION_SETUP.md) - Deploy to production with systemd and Caddy
+- [Deployment Options](docs/DEPLOYMENT.md) - Overview of deployment strategies
 
 ## License
 

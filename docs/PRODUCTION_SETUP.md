@@ -14,10 +14,14 @@ Quick reference for deploying Merlin to production with systemd and Caddy.
 
 ### 0. Quick Fix for Common Issues
 
-**Getting "table does not exist" errors?** Run this one-liner:
+**Getting "table does not exist" errors?** Run these commands:
 
 ```bash
-cd /home/ubuntu/merlin-js && ./setup-database.sh && sudo systemctl restart merlin
+cd /home/ubuntu/merlin-js/server
+npx prisma generate
+npx prisma db push
+cd ..
+sudo systemctl restart merlin
 ```
 
 ### 1. Initial Server Setup

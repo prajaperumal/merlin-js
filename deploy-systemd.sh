@@ -101,12 +101,11 @@ EOF
     echo ""
 fi
 
-# Create systemd service file if it doesn't exist
-if [ ! -f "$SERVICE_FILE" ]; then
-    echo "📝 Creating systemd service file..."
-    echo "This requires sudo access..."
+# Create/update systemd service file
+echo "📝 Creating/updating systemd service file..."
+echo "This requires sudo access..."
 
-    sudo tee "$SERVICE_FILE" > /dev/null << EOF
+sudo tee "$SERVICE_FILE" > /dev/null << EOF
 [Unit]
 Description=Merlin Movie Discovery App
 After=network.target postgresql.service
@@ -134,9 +133,8 @@ PrivateTmp=true
 WantedBy=multi-user.target
 EOF
 
-    echo "✓ Service file created"
-    echo ""
-fi
+echo "✓ Service file updated"
+echo ""
 
 # Check if environment file exists
 if [ ! -f "$ENV_FILE" ]; then

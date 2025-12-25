@@ -4,38 +4,27 @@ This guide covers various deployment options for the Merlin application.
 
 ## Table of Contents
 
-1. [Docker Deployment (Recommended)](#docker-deployment)
+1. [Production Deployment (systemd + Caddy)](#production-deployment)
 2. [Cloud Platform Deployment](#cloud-platform-deployment)
 3. [Environment Variables](#environment-variables)
 4. [Database Setup](#database-setup)
 5. [SSL/HTTPS Setup](#ssl-https-setup)
 
-## Docker Deployment
+## Production Deployment
 
-### Quick Start with Docker
+### systemd + Caddy (Recommended)
 
-The simplest way to deploy Merlin is using Docker Compose:
+For production deployments on Ubuntu/Debian servers, we recommend using systemd for process management and Caddy for reverse proxy with automatic HTTPS.
 
-```bash
-# 1. Clone the repository
-git clone <your-repo>
-cd merlin-js
+See [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md) for complete step-by-step setup instructions.
 
-# 2. Create environment configuration
-cp .env.docker .env.docker.local
-
-# 3. Edit .env.docker.local with your credentials
-# Required: TMDB_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET
-
-# 4. Start the application
-./docker-start.sh
-# OR
-docker-compose --env-file .env.docker.local up -d
-
-# 5. Access at http://localhost:8000
-```
-
-See [DOCKER.md](DOCKER.md) for complete Docker documentation.
+**Quick Overview:**
+1. Set up PostgreSQL database
+2. Install Node.js 18+ and Caddy
+3. Clone repository and install dependencies
+4. Configure environment variables
+5. Run deployment script: `./deploy-systemd.sh`
+6. Configure Caddy reverse proxy
 
 ## Cloud Platform Deployment
 
