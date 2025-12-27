@@ -304,12 +304,12 @@ export class CircleRepository {
     /**
      * Add movie to circle watchstream
      */
-    async addMovieToCircle(circleId: number, movieTmdbId: number, userId: number, recommendation?: string, streamingPlatforms?: any) {
+    async addMovieToCircle(circleId: number, movieId: number, userId: number, recommendation?: string, streamingPlatforms?: any) {
         try {
             return await prisma.circleMovie.create({
                 data: {
                     circleId,
-                    movieTmdbId,
+                    movieId,
                     addedBy: userId,
                     recommendation,
                     streamingPlatforms: streamingPlatforms || null,
@@ -326,11 +326,11 @@ export class CircleRepository {
     /**
      * Remove movie from circle watchstream
      */
-    async removeMovieFromCircle(circleId: number, movieTmdbId: number) {
+    async removeMovieFromCircle(circleId: number, movieId: number) {
         return prisma.circleMovie.deleteMany({
             where: {
                 circleId,
-                movieTmdbId,
+                movieId,
             },
         });
     }

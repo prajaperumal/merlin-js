@@ -102,7 +102,7 @@ export function MovieSearchBar() {
                 {showSuggestions && suggestions.length > 0 && (
                     <div className={styles.dropdown}>
                         {suggestions.map((movie) => (
-                            <div key={movie.tmdbId} className={styles.movieResult}>
+                            <div key={movie.dataProviderId} className={styles.movieResult}>
                                 <div className={styles.movieContent}>
                                     {movie.posterUrl ? (
                                         <img
@@ -133,18 +133,19 @@ export function MovieSearchBar() {
                                 </div>
                                 <div className={styles.actions}>
                                     <button
+                                        className={styles.recommendButton}
+                                        onClick={() => handleRecommendToCircles(movie)}
+                                        title="Recommend to Circles"
+                                    >
+                                        <Icon name="share" size="small" />
+                                        <span>Recommend</span>
+                                    </button>
+                                    <button
                                         className={styles.actionButton}
                                         onClick={() => handleAddToWatchstream(movie)}
                                         title="Add to Watchstream"
                                     >
                                         <Icon name="bookmark" size="medium" />
-                                    </button>
-                                    <button
-                                        className={styles.actionButton}
-                                        onClick={() => handleRecommendToCircles(movie)}
-                                        title="Recommend to Circles"
-                                    >
-                                        <Icon name="users" size="medium" />
                                     </button>
                                 </div>
                             </div>

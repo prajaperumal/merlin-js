@@ -87,7 +87,7 @@ export function SearchBar({ onAddToWatchstream, showPlatformSelection = false }:
                 <div className={styles.suggestions}>
                     {suggestions.map((movie) => (
                         <div
-                            key={movie.tmdbId}
+                            key={movie.dataProviderId}
                             className={styles.suggestion}
                         >
                             {movie.posterUrl ? (

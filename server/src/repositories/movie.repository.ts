@@ -13,10 +13,15 @@ export class MovieRepository {
      * Cache a movie in the database
      */
     async cacheMovie(tmdbMovie: TMDBMovie) {
+        // Don't cache adult content
+        if (tmdbMovie.adult) {
+            throw new Error('Adult content is not allowed');
+        }
+
         const year = tmdbMovie.release_date ? tmdbMovie.release_date.split('-')[0] : null;
 
         return prisma.movie.upsert({
-            where: { tmdbId: tmdbMovie.id },
+            where: { dataProviderId: tmdbMovie.id },
             update: {
                 title: tmdbMovie.title,
                 originalTitle: tmdbMovie.original_title,
@@ -31,11 +36,11 @@ export class MovieRepository {
                 voteCount: tmdbMovie.vote_count,
                 popularity: tmdbMovie.popularity,
                 originalLanguage: tmdbMovie.original_language,
-                adult: tmdbMovie.adult || false,
                 genreIds: tmdbMovie.genre_ids,
             },
             create: {
-                tmdbId: tmdbMovie.id,
+                dataProviderId: tmdbMovie.id,
+                dataProvider: 'tmdb',
                 title: tmdbMovie.title,
                 originalTitle: tmdbMovie.original_title,
                 overview: tmdbMovie.overview,
@@ -49,7 +54,6 @@ export class MovieRepository {
                 voteCount: tmdbMovie.vote_count,
                 popularity: tmdbMovie.popularity,
                 originalLanguage: tmdbMovie.original_language,
-                adult: tmdbMovie.adult || false,
                 genreIds: tmdbMovie.genre_ids,
             },
         });
@@ -59,7 +63,9 @@ export class MovieRepository {
      * Cache multiple movies
      */
     async cacheMovies(tmdbMovies: TMDBMovie[]) {
-        const promises = tmdbMovies.map(movie => this.cacheMovie(movie));
+        // Filter out adult content before caching
+        const safeMovies = tmdbMovies.filter(movie => !movie.adult);
+        const promises = safeMovies.map(movie => this.cacheMovie(movie));
         return Promise.all(promises);
     }
 
@@ -82,11 +88,14 @@ export class MovieRepository {
     }
 
     /**
-     * Get movie by TMDB ID
+     * Get movie by data provider ID
      */
-    async getByTmdbId(tmdbId: number) {
-        return prisma.movie.findUnique({
-            where: { tmdbId },
+    async getByDataProviderId(dataProviderId: number, dataProvider: string = 'tmdb') {
+        return prisma.movie.findFirst({
+            where: {
+                dataProviderId,
+                dataProvider
+            },
         });
     }
 }

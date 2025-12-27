@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
 import { Watchstreams } from './pages/Watchstreams';
 import { WatchstreamDetail } from './pages/WatchstreamDetail';
@@ -66,6 +67,7 @@ function AppContent() {
                     <Route path="/circles/:id" element={<CircleDetail />} />
                 </Routes>
             </main>
+            <Footer />
         </div>
     );
 }

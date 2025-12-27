@@ -1,0 +1,220 @@
+.dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 400px;
+    max-height: 600px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.markAllButton {
+    background: none;
+    border: none;
+    color: #8b5cf6;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.markAllButton:hover {
+    background: #f5f3ff;
+}
+
+.notificationList {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.notificationList::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notificationList::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+.notificationList::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.notificationList::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+.notificationItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f3f4f6;
+    position: relative;
+}
+
+.notificationItem:last-child {
+    border-bottom: none;
+}
+
+.notificationItem:hover {
+    background: #f9fafb;
+}
+
+.notificationItem.unread {
+    background: #faf5ff;
+}
+
+.notificationItem.unread:hover {
+    background: #f5f3ff;
+}
+
+.iconWrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.notificationItem.unread .iconWrapper {
+    background: #ede9fe;
+    color: #8b5cf6;
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+}
+
+.message {
+    font-size: 14px;
+    color: #1f2937;
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+
+.time {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.unreadDot {
+    width: 8px;
+    height: 8px;
+    background: #8b5cf6;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.empty svg {
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.acceptButton,
+.declineButton {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.acceptButton {
+    background: #8b5cf6;
+    color: white;
+}
+
+.acceptButton:hover:not(:disabled) {
+    background: #7c3aed;
+}
+
+.acceptButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.declineButton {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.declineButton:hover:not(:disabled) {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.declineButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

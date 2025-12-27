@@ -1,8 +1,10 @@
 import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { CircleRepository } from '../repositories/circle.repository.js';
+import { MovieRepository } from '../repositories/movie.repository.js';
 import { UserRepository } from '../repositories/user.repository.js';
 import { EmailService } from '../services/email.service.js';
+import { TMDBService } from '../services/tmdb.service.js';
 import type { AuthSession } from '../types/index.js';
 
 type Variables = {
@@ -11,8 +13,10 @@ type Variables = {
 
 const circles = new Hono<{ Variables: Variables }>();
 const circleRepo = new CircleRepository();
+const movieRepo = new MovieRepository();
 const userRepo = new UserRepository();
 const emailService = new EmailService();
+const tmdbService = new TMDBService();
 
 // All routes require authentication
 circles.use('/*', authMiddleware);
@@ -155,7 +159,20 @@ circles.post('/:id/movies', async (c) => {
         return c.json({ error: 'Not a member of this circle' }, 403);
     }
 
-    const result = await circleRepo.addMovieToCircle(id, movieTmdbId, session.userId, recommendation, streamingPlatforms);
+    // Ensure movie is cached and get internal ID
+    let movie = await movieRepo.getByDataProviderId(movieTmdbId, 'tmdb');
+    if (!movie) {
+        const tmdbMovie = await tmdbService.getMovieDetails(movieTmdbId);
+        if (tmdbMovie) {
+            movie = await movieRepo.cacheMovie(tmdbMovie);
+        }
+    }
+
+    if (!movie) {
+        return c.json({ error: 'Movie not found' }, 404);
+    }
+
+    const result = await circleRepo.addMovieToCircle(id, movie.id, session.userId, recommendation, streamingPlatforms);
 
     if (!result) {
         return c.json({ error: 'Movie already in circle' }, 409);

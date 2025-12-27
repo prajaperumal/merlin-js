@@ -13,7 +13,7 @@ export interface StreamingPlatform {
 
 export interface Movie {
     id: number;
-    tmdbId: number;
+    dataProviderId: number;
     title: string;
     originalTitle?: string;
     overview?: string;
@@ -27,7 +27,6 @@ export interface Movie {
     voteCount?: number;
     popularity?: number;
     originalLanguage?: string;
-    adult?: boolean;
     genreIds?: number[];
     watchStatus?: 'backlog' | 'watched';
     streamingPlatforms?: StreamingPlatform[];
@@ -38,7 +37,7 @@ export interface Movie {
 export interface WatchstreamMovie {
     id: number;
     watchstreamId: number;
-    movieTmdbId: number;
+    movieId: number;
     watchStatus: 'backlog' | 'watched';
     streamingPlatforms?: StreamingPlatform[];
     addedAt: Date;
@@ -77,4 +76,22 @@ export interface CircleInvitation {
     circle: Circle;
     status: string;
     invitedAt: string;
+}
+
+export interface Notification {
+    id: number;
+    userId: number;
+    type: 'circle_invite' | 'invite_accepted' | 'movie_recommended' | 'comment_added';
+    title: string;
+    message: string;
+    metadata?: {
+        circleName?: string;
+        movieTitle?: string;
+        userName?: string;
+        circleId?: number;
+        movieId?: number;
+    };
+    link?: string;
+    read: boolean;
+    createdAt: string;
 }

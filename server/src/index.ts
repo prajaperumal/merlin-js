@@ -18,6 +18,7 @@ import auth from './routes/auth.js';
 import movies from './routes/movies.js';
 import watchstreams from './routes/watchstreams.js';
 import circles from './routes/circles.js';
+import notifications from './routes/notifications.js';
 
 const app = new Hono();
 
@@ -48,6 +49,7 @@ app.route('/api/auth', auth);
 app.route('/api/movies', movies);
 app.route('/api/watchstreams', watchstreams);
 app.route('/api/circles', circles);
+app.route('/api/notifications', notifications);
 
 // Health check
 app.get('/health', (c) => {

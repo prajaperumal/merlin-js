@@ -45,7 +45,7 @@ export function AddToWatchstreamModal({ isOpen, onClose, movie, onSuccess }: Add
         try {
             await api.addMovieToWatchstream(
                 selectedWatchstream,
-                movie.tmdbId,
+                movie.dataProviderId,
                 watchStatus,
                 streamingPlatforms.length > 0 ? streamingPlatforms : undefined
             );

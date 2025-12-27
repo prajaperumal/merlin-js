@@ -91,7 +91,7 @@ export function MovieSearchModal({ isOpen, onClose }: MovieSearchModalProps) {
         try {
             await api.addMovieToWatchstream(
                 selectedWatchstream,
-                selectedMovie.tmdbId,
+                selectedMovie.dataProviderId,
                 watchStatus,
                 streamingPlatforms.length > 0 ? streamingPlatforms : undefined
             );
@@ -110,7 +110,7 @@ export function MovieSearchModal({ isOpen, onClose }: MovieSearchModalProps) {
                 Array.from(selectedCircles).map(circleId =>
                     api.addMovieToCircle(
                         circleId,
-                        selectedMovie.tmdbId,
+                        selectedMovie.dataProviderId,
                         recommendation || undefined
                     )
                 )
@@ -166,7 +166,7 @@ export function MovieSearchModal({ isOpen, onClose }: MovieSearchModalProps) {
                 <div className={styles.results}>
                     {suggestions.map((movie) => (
                         <div
-                            key={movie.tmdbId}
+                            key={movie.dataProviderId}
                             className={styles.movieCard}
                             onClick={() => handleMovieSelect(movie)}
                         >

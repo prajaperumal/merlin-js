@@ -1,4 +1,4 @@
-# Merlin 🎬
+We will # Merlin 🎬
 
 A modern movie search and discovery application built with TypeScript, Hono, and React.
 

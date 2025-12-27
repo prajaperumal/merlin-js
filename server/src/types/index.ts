@@ -11,7 +11,8 @@ export interface User {
 
 export interface Movie {
     id: number;
-    tmdbId: number;
+    dataProviderId: number;
+    dataProvider: string;
     title: string;
     originalTitle?: string;
     overview?: string;
@@ -25,7 +26,6 @@ export interface Movie {
     voteCount?: number;
     popularity?: number;
     originalLanguage?: string;
-    adult?: boolean;
     genreIds?: number[];
 }
 
@@ -61,7 +61,7 @@ export interface StreamingPlatform {
 export interface WatchstreamMovie {
     id: number;
     watchstreamId: number;
-    movieTmdbId: number;
+    movieId: number;
     watchStatus: 'backlog' | 'watched';
     streamingPlatforms?: StreamingPlatform[];
     addedAt: Date;
@@ -89,7 +89,7 @@ export interface CircleMember {
 export interface CircleMovie {
     id: number;
     circleId: number;
-    movieTmdbId: number;
+    movieId: number;
     addedBy: number;
     recommendation?: string;
     streamingPlatforms?: StreamingPlatform[];

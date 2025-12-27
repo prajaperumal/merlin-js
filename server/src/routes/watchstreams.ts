@@ -97,8 +97,8 @@ watchstreams.post('/:id/movies', async (c) => {
         return c.json({ error: 'Movie ID is required' }, 400);
     }
 
-    // Ensure movie is cached
-    let movie = await movieRepo.getByTmdbId(movieTmdbId);
+    // Ensure movie is cached and get internal ID
+    let movie = await movieRepo.getByDataProviderId(movieTmdbId, 'tmdb');
     if (!movie) {
         const tmdbMovie = await tmdbService.getMovieDetails(movieTmdbId);
         if (tmdbMovie) {
@@ -106,7 +106,11 @@ watchstreams.post('/:id/movies', async (c) => {
         }
     }
 
-    const result = await watchstreamRepo.addMovie(id, movieTmdbId, watchStatus, streamingPlatforms);
+    if (!movie) {
+        return c.json({ error: 'Movie not found' }, 404);
+    }
+
+    const result = await watchstreamRepo.addMovie(id, movie.id, watchStatus, streamingPlatforms);
 
     if (!result) {
         return c.json({ error: 'Movie already in watchstream' }, 409);

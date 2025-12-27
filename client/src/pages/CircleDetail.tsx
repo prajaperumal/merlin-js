@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { Circle, CircleMember, Movie, Watchstream } from '../types';
@@ -9,6 +9,7 @@ import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import { SearchBar } from '../components/SearchBar';
 import { DiscussionDrawer } from '../components/DiscussionDrawer';
+import { CircleDetailHeader } from '../components/CircleDetailHeader';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './CircleDetail.module.css';
 
@@ -34,14 +35,7 @@ export function CircleDetail() {
     const [showDiscussionDrawer, setShowDiscussionDrawer] = useState(false);
     const [discussionMovie, setDiscussionMovie] = useState<any | null>(null);
 
-    useEffect(() => {
-        if (id) {
-            loadCircleDetails();
-            loadCircleMovies();
-        }
-    }, [id]);
-
-    const loadCircleDetails = async () => {
+    const loadCircleDetails = useCallback(async () => {
         if (!id) return;
         setLoading(true);
         try {
@@ -53,9 +47,9 @@ export function CircleDetail() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
 
-    const loadCircleMovies = async () => {
+    const loadCircleMovies = useCallback(async () => {
         if (!id) return;
         try {
             const data = await api.getCircleMovies(parseInt(id));
@@ -63,7 +57,14 @@ export function CircleDetail() {
         } catch (error) {
             console.error('Failed to load circle movies:', error);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        if (id) {
+            loadCircleDetails();
+            loadCircleMovies();
+        }
+    }, [id, loadCircleDetails, loadCircleMovies]);
 
     const loadUserWatchstreams = async () => {
         try {
@@ -98,7 +99,7 @@ export function CircleDetail() {
     const handleAddMovieToCircle = async () => {
         if (!id || !selectedMovie) return;
         try {
-            await api.addMovieToCircle(parseInt(id), selectedMovie.tmdbId, recommendation);
+            await api.addMovieToCircle(parseInt(id), selectedMovie.dataProviderId, recommendation);
             setSelectedMovie(null);
             setRecommendation('');
             loadCircleMovies();
@@ -122,7 +123,7 @@ export function CircleDetail() {
     const handleAddToPersonalWatchstream = async () => {
         if (!selectedMovie || !selectedWatchstream) return;
         try {
-            await api.addMovieToWatchstream(selectedWatchstream, selectedMovie.tmdbId, selectedStatus);
+            await api.addMovieToWatchstream(selectedWatchstream, selectedMovie.dataProviderId, selectedStatus);
             setShowAddToWatchstreamModal(false);
             setSelectedMovie(null);
             setSelectedWatchstream(null);
@@ -154,151 +155,108 @@ export function CircleDetail() {
 
     return (
         <div className={styles.container}>
-            <div className={styles.mainLayout}>
-                <div className={styles.mainContent}>
-                    <div className={styles.header}>
-                        <div>
-                            <h1 className={styles.title}>{circle.name}</h1>
-                            {circle.description && (
-                                <p className={styles.description}>{circle.description}</p>
-                            )}
-                        </div>
-                    </div>
+            <div className={styles.content}>
+                {circle && members.length >= 0 && (
+                    <CircleDetailHeader
+                        circleName={circle.name}
+                        description={circle.description}
+                        members={members}
+                        movieCount={movies.length}
+                        createdAt={circle.createdAt}
+                        onBack={() => window.history.back()}
+                        onInviteMembers={() => setShowInviteModal(true)}
+                        onAddMovie={() => setShowAddMovieModal(true)}
+                        onMenuClick={() => setShowFabMenu(!showFabMenu)}
+                    />
+                )}
 
-                    {/* Circle Watchstream Section */}
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>Watchstream</h2>
-                            <span className={styles.movieCount}>{movies.length} movies</span>
-                        </div>
-                        {movies.length > 0 ? (
-                            <div className={styles.moviesList}>
-                                {movies.map((item) => (
-                                    <Card
-                                        key={item.movie.tmdbId}
-                                        className={`${styles.movieTile} ${styles.clickableTile}`}
+                {/* Circle Watchstream Section */}
+                <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>Watchstream</h2>
+                        <span className={styles.movieCount}>{movies.length} movies</span>
+                    </div>
+                    {movies.length > 0 ? (
+                        <div className={styles.moviesGrid}>
+                            {movies.map((item) => {
+                                const movie = item.movie || item;
+                                const user = item.user;
+                                return (
+                                    <div
+                                        key={movie.dataProviderId || movie.id}
+                                        className={styles.movieCard}
                                         onClick={() => handleOpenDiscussion(item)}
                                     >
-                                        <div className={styles.movieTileContent}>
-                                            {item.movie.posterUrl && (
+                                        <div className={styles.posterContainer}>
+                                            {movie.posterUrl && (
                                                 <img
-                                                    src={item.movie.posterUrl}
-                                                    alt={item.movie.title}
-                                                    className={styles.movieTilePoster}
+                                                    src={movie.posterUrl}
+                                                    alt={movie.title}
+                                                    className={styles.poster}
                                                 />
                                             )}
-                                            <div className={styles.movieTileDetails}>
-                                                <h3 className={styles.movieTileTitle}>{item.movie.title}</h3>
-                                                <p className={styles.movieTileYear}>{item.movie.year}</p>
+                                            {movie.voteAverage && (
+                                                <div className={styles.rating}>
+                                                    <span className={styles.ratingIcon}>★</span>
+                                                    {movie.voteAverage.toFixed(1)}
+                                                </div>
+                                            )}
+                                        </div>
 
-                                                {item.recommendation && (
-                                                    <div className={styles.recommendationSection}>
-                                                        <div className={styles.recommendationHeader}>
-                                                            {item.user.picture ? (
-                                                                <img
-                                                                    src={item.user.picture}
-                                                                    alt={item.user.name || item.user.email}
-                                                                    className={styles.recommendationAvatar}
-                                                                />
-                                                            ) : (
-                                                                <div className={styles.recommendationAvatarPlaceholder}>
-                                                                    {(item.user.name || item.user.email).charAt(0).toUpperCase()}
-                                                                </div>
-                                                            )}
-                                                            <span className={styles.recommendationAuthor}>
-                                                                {item.user.name || item.user.email}
-                                                            </span>
-                                                        </div>
-                                                        <p className={styles.recommendationText}>"{item.recommendation}"</p>
-                                                    </div>
-                                                )}
+                                        <div className={styles.cardContent}>
+                                            <h3 className={styles.movieTitle}>{movie.title}</h3>
+                                            <p className={styles.movieMeta}>
+                                                {movie.year} • {movie.genreIds?.slice(0, 2).join(', ') || 'Movie'}
+                                            </p>
 
-                                                {!item.recommendation && item.movie.overview && (
-                                                    <p className={styles.movieTileOverview}>{item.movie.overview}</p>
-                                                )}
-                                            </div>
-                                            <div className={styles.movieTileActions}>
-                                                <div className={styles.topActions}>
-                                                    {!item.recommendation && (
-                                                        <div className={styles.addedBySection}>
-                                                            {item.user.picture ? (
-                                                                <img
-                                                                    src={item.user.picture}
-                                                                    alt={item.user.name || item.user.email}
-                                                                    className={styles.addedByAvatar}
-                                                                />
-                                                            ) : (
-                                                                <div className={styles.addedByAvatarPlaceholder}>
-                                                                    {(item.user.name || item.user.email).charAt(0).toUpperCase()}
-                                                                </div>
-                                                            )}
-                                                            <div className={styles.addedByInfo}>
-                                                                <p className={styles.addedByLabel}>Added by</p>
-                                                                <p className={styles.addedByName}>{item.user.name || item.user.email}</p>
-                                                            </div>
+                                            {user && (
+                                                <div className={styles.recommendedBy}>
+                                                    {user.picture ? (
+                                                        <img
+                                                            src={user.picture}
+                                                            alt={user.name || user.email}
+                                                            className={styles.userAvatar}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.userAvatarPlaceholder}>
+                                                            {(user.name || user.email).charAt(0).toUpperCase()}
                                                         </div>
                                                     )}
-                                                    <Button
-                                                        variant="ghost"
-                                                        onClick={() => handleOpenDiscussion(item)}
-                                                        className={styles.discussionButton}
-                                                    >
-                                                        <Icon name="message-square" className={styles.buttonIcon} />
-                                                        Discussion
-                                                    </Button>
+                                                    <span>{user.name || user.email} recommended</span>
                                                 </div>
-                                                <Button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleOpenAddToWatchstream(item.movie);
-                                                    }}
-                                                    className={styles.addToWatchstreamButton}
-                                                >
-                                                    Add to My Watchstream
-                                                </Button>
+                                            )}
+
+                                            {item.recommendation && (
+                                                <p className={styles.recommendationText}>"{item.recommendation}"</p>
+                                            )}
+
+                                            <div className={styles.cardFooter}>
+                                                <div className={styles.engagement}>
+                                                    <Icon name="heart" size="small" />
+                                                    <span>12</span>
+                                                </div>
+                                                <div className={styles.engagement}>
+                                                    <Icon name="message-square" size="small" />
+                                                    <span>5</span>
+                                                </div>
+                                                <span className={styles.timeAgo}>2 days ago</span>
                                             </div>
                                         </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className={styles.empty}>
-                                <p>No movies in circle watchstream yet</p>
-                                {isMember && <p>Be the first to add a movie!</p>}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Members Sidebar */}
-                <div className={styles.sidebar}>
-                    <div className={styles.sidebarHeader}>
-                        <h3 className={styles.sidebarTitle}>Members</h3>
-                        <span className={styles.memberCount}>{members.length}</span>
-                    </div>
-                    <div className={styles.membersGrid}>
-                        {members.map((member) => (
-                            <div key={member.id} className={styles.memberIcon} title={member.name || member.email}>
-                                {member.picture ? (
-                                    <img
-                                        src={member.picture}
-                                        alt={member.name || member.email}
-                                        className={styles.memberAvatar}
-                                    />
-                                ) : (
-                                    <div className={styles.memberAvatarPlaceholder}>
-                                        {(member.name || member.email).charAt(0).toUpperCase()}
                                     </div>
-                                )}
-                                {member.isOwner && <div className={styles.ownerIndicator} title="Owner">★</div>}
-                            </div>
-                        ))}
-                    </div>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div className={styles.empty}>
+                            <p>No movies in circle watchstream yet</p>
+                            {isMember && <p>Be the first to add a movie!</p>}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Floating Action Button */}
-            {(isMember || isOwner) && (
+            {/* Floating Action Button - Hidden, using header buttons */}
+            {false && (isMember || isOwner) && (
                 <div className={styles.fabContainer}>
                     {showFabMenu && (
                         <div className={styles.fabMenu}>
@@ -336,7 +294,8 @@ export function CircleDetail() {
                         <span className={styles.fabIcon}>{showFabMenu ? '×' : '+'}</span>
                     </button>
                 </div>
-            )}
+            )
+            }
 
             {/* Invite Member Modal */}
             <Modal
@@ -539,14 +498,16 @@ export function CircleDetail() {
                 </div>
             </Modal>
 
-            {discussionMovie && (
-                <DiscussionDrawer
-                    isOpen={showDiscussionDrawer}
-                    onClose={() => setShowDiscussionDrawer(false)}
-                    movie={discussionMovie.movie}
-                    circleMovieId={discussionMovie.circleMovieId}
-                />
-            )}
-        </div>
+            {
+                discussionMovie && (
+                    <DiscussionDrawer
+                        isOpen={showDiscussionDrawer}
+                        onClose={() => setShowDiscussionDrawer(false)}
+                        movie={discussionMovie.movie}
+                        circleMovieId={discussionMovie.circleMovieId}
+                    />
+                )
+            }
+        </div >
     );
 }

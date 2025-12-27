@@ -38,7 +38,13 @@ export class TMDBService {
                 throw new Error(`TMDB API error: ${response.statusText}`);
             }
 
-            const data = await response.json();
+            const data = await response.json() as any;
+
+            // Don't return adult content
+            if (data.adult) {
+                return null;
+            }
+
             return this.transformMovie(data);
         } catch (error) {
             console.error('Error fetching movie details:', error);
@@ -50,7 +56,9 @@ export class TMDBService {
      * Transform TMDB movie data to our format
      */
     private transformMovies(movies: any[]): TMDBMovie[] {
-        return movies.map(movie => this.transformMovie(movie));
+        return movies
+            .filter(movie => !movie.adult) // Filter out adult content
+            .map(movie => this.transformMovie(movie));
     }
 
     private transformMovie(movie: any): TMDBMovie {

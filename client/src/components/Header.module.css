@@ -1,14 +1,22 @@
 .header {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-md) 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+}
+
+.headerContent {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: var(--spacing-xl);
-    padding: var(--spacing-lg) var(--spacing-2xl);
-    background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
-    position: sticky;
-    top: 0;
-    z-index: var(--z-sticky);
+    width: 100%;
+    max-width: 1400px;
+    padding: 0 var(--spacing-2xl);
 }
 
 .leftSection {
@@ -34,7 +42,7 @@
 .logoLink {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: var(--spacing-sm);
     text-decoration: none;
     transition: opacity var(--transition-fast);
 }
@@ -43,24 +51,21 @@
     opacity: 0.8;
 }
 
-.logo {
-    height: 48px;
-    width: auto;
+.logoIcon {
+    width: 32px;
+    height: 32px;
+    background: #a855f7;
     border-radius: var(--radius-md);
-    object-fit: contain;
-    transition: transform var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
 }
 
 .logoText {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-extrabold);
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.03em;
-    filter: drop-shadow(0 0 2px rgba(var(--color-primary-rgb), 0.2));
-    transition: all var(--transition-base);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: #1f2937;
 }
 
 /* Mode Tabs */
@@ -74,12 +79,12 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     border: none;
     background: transparent;
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
+    color: #6b7280;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
     position: relative;
     transition: all var(--transition-fast);
@@ -87,13 +92,13 @@
 }
 
 .modeTab:hover {
-    color: var(--color-text-primary);
-    background: var(--color-bg-hover);
+    color: #1f2937;
+    background: #f3f4f6;
 }
 
 .modeTabActive {
-    color: var(--color-primary);
-    background: var(--color-bg-hover);
+    color: #8B5CF6;
+    background: #f3f4f6;
 }
 
 .modeBadge {
@@ -117,27 +122,44 @@
 .userName {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
+    color: #1f2937;
 }
 
 .userEmail {
     font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
+    color: #6b7280;
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-full);
-    border: 2px solid var(--color-border);
+    border: 2px solid #e5e7eb;
 }
 
-.logoutButton {
-    padding: var(--spacing-sm);
-    color: var(--color-text-secondary);
+.notificationWrapper {
+    position: relative;
 }
 
-.logoutButton:hover {
-    color: var(--color-text-primary);
-    background: var(--color-bg-hover);
+.notificationButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    padding: 0;
+}
+
+.notificationButton:hover {
+    background: #f3f4f6;
+}
+
+.bellIcon {
+    width: 20px;
+    height: 20px;
 }

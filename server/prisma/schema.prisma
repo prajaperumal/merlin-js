@@ -8,26 +8,28 @@ datasource db {
 }
 
 model User {
-  id                Int            @id @default(autoincrement())
-  googleId          String         @unique @map("google_id")
-  email             String         @unique
+  id                Int                  @id @default(autoincrement())
+  googleId          String               @unique @map("google_id")
+  email             String               @unique
   name              String?
   picture           String?
-  createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime       @updatedAt @map("updated_at")
-  lastLogin         DateTime?      @map("last_login")
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
+  lastLogin         DateTime?            @map("last_login")
   circleMemberships CircleMember[]
   circleMovies      CircleMovie[]
   ownedCircles      Circle[]             @relation("CircleOwner")
   watchstreams      Watchstream[]
   movieComments     CircleMovieComment[]
+  notifications     Notification[]
 
   @@map("users")
 }
 
 model Movie {
   id                Int                @id @default(autoincrement())
-  tmdbId            Int                @unique @map("tmdb_id")
+  dataProviderId    Int                @unique @map("data_provider_id")
+  dataProvider      String             @default("tmdb") @map("data_provider")
   title             String
   originalTitle     String?            @map("original_title")
   overview          String?
@@ -41,7 +43,6 @@ model Movie {
   voteCount         Int?               @map("vote_count")
   popularity        Float?
   originalLanguage  String?            @map("original_language")
-  adult             Boolean            @default(false)
   genreIds          Json?              @map("genre_ids")
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
@@ -67,28 +68,28 @@ model Watchstream {
 model WatchstreamMovie {
   id                 Int         @id @default(autoincrement())
   watchstreamId      Int         @map("watchstream_id")
-  movieTmdbId        Int         @map("movie_tmdb_id")
+  movieId            Int         @map("movie_id")
   watchStatus        String      @default("backlog") @map("watch_status")
   streamingPlatforms Json?       @map("streaming_platforms")
   addedAt            DateTime    @default(now()) @map("added_at")
-  movie              Movie       @relation(fields: [movieTmdbId], references: [tmdbId])
+  movie              Movie       @relation(fields: [movieId], references: [id])
   watchstream        Watchstream @relation(fields: [watchstreamId], references: [id], onDelete: Cascade)
 
-  @@unique([watchstreamId, movieTmdbId])
+  @@unique([watchstreamId, movieId])
   @@map("watchstream_movies")
 }
 
 model Circle {
-  id          Int            @id @default(autoincrement())
+  id          Int                @id @default(autoincrement())
   name        String
-  ownerUserId Int            @map("owner_user_id")
+  ownerUserId Int                @map("owner_user_id")
   description String?
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
   members     CircleMember[]
   movies      CircleMovie[]
   invitations CircleInvitation[]
-  owner       User           @relation("CircleOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  owner       User               @relation("CircleOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
 
   @@map("circles")
 }
@@ -109,32 +110,32 @@ model CircleMember {
 }
 
 model CircleMovie {
-  id                 Int      @id @default(autoincrement())
-  circleId           Int      @map("circle_id")
-  movieTmdbId        Int      @map("movie_tmdb_id")
-  addedBy            Int      @map("added_by")
+  id                 Int                  @id @default(autoincrement())
+  circleId           Int                  @map("circle_id")
+  movieId            Int                  @map("movie_id")
+  addedBy            Int                  @map("added_by")
   recommendation     String?
-  streamingPlatforms Json?    @map("streaming_platforms")
-  addedAt            DateTime @default(now()) @map("added_at")
-  user               User     @relation(fields: [addedBy], references: [id], onDelete: Cascade)
-  circle             Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
-  movie              Movie                @relation(fields: [movieTmdbId], references: [tmdbId], onDelete: Cascade)
+  streamingPlatforms Json?                @map("streaming_platforms")
+  addedAt            DateTime             @default(now()) @map("added_at")
+  user               User                 @relation(fields: [addedBy], references: [id], onDelete: Cascade)
+  circle             Circle               @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  movie              Movie                @relation(fields: [movieId], references: [id], onDelete: Cascade)
   comments           CircleMovieComment[]
 
-  @@unique([circleId, movieTmdbId])
+  @@unique([circleId, movieId])
   @@map("circle_movies")
 }
 
 model CircleMovieComment {
-  id            Int         @id @default(autoincrement())
-  circleMovieId Int         @map("circle_movie_id")
-  userId        Int         @map("user_id")
-  content       String      @db.Text
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
-  
-  circleMovie   CircleMovie @relation(fields: [circleMovieId], references: [id], onDelete: Cascade)
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            Int      @id @default(autoincrement())
+  circleMovieId Int      @map("circle_movie_id")
+  userId        Int      @map("user_id")
+  content       String   @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  circleMovie CircleMovie @relation(fields: [circleMovieId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("circle_movie_comments")
 }
@@ -150,4 +151,20 @@ model CircleInvitation {
 
   @@unique([email, circleId])
   @@map("circle_invitations")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  type      String // 'circle_invite', 'invite_accepted', 'movie_recommended', 'comment_added'
+  title     String
+  message   String   @db.Text
+  metadata  Json? // { circleName, movieTitle, userName, circleId, movieId, etc. }
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
 }

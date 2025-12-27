@@ -10,14 +10,44 @@ export class UserRepository {
         name: string | null;
         picture: string | null;
     }) {
-        return prisma.user.upsert({
+        // First, check if a user with this googleId exists
+        const existingByGoogleId = await prisma.user.findUnique({
             where: { googleId: data.googleId },
-            update: {
-                name: data.name,
-                picture: data.picture,
-                lastLogin: new Date(),
-            },
-            create: {
+        });
+
+        if (existingByGoogleId) {
+            // Update the existing user
+            return prisma.user.update({
+                where: { googleId: data.googleId },
+                data: {
+                    name: data.name,
+                    picture: data.picture,
+                    lastLogin: new Date(),
+                },
+            });
+        }
+
+        // Check if a user with this email exists (but different googleId)
+        const existingByEmail = await prisma.user.findUnique({
+            where: { email: data.email },
+        });
+
+        if (existingByEmail) {
+            // Update the existing user's googleId (user logging in with a different Google method)
+            return prisma.user.update({
+                where: { email: data.email },
+                data: {
+                    googleId: data.googleId,
+                    name: data.name,
+                    picture: data.picture,
+                    lastLogin: new Date(),
+                },
+            });
+        }
+
+        // Create a new user
+        return prisma.user.create({
+            data: {
                 googleId: data.googleId,
                 email: data.email,
                 name: data.name,

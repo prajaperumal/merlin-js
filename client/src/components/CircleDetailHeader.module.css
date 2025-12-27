@@ -1,0 +1,215 @@
+/* Page Header */
+.pageHeader {
+    margin-bottom: var(--spacing-xl);
+}
+
+.headerTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+}
+
+.headerLeft {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.backButton {
+    padding: var(--spacing-sm);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.backButton:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: 4px;
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: #1f2937;
+    margin: 0;
+}
+
+.memberCountBadge {
+    padding: 4px 12px;
+    background: #f3e8ff;
+    color: #a855f7;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.subtitle {
+    font-size: var(--font-size-base);
+    color: #6b7280;
+    margin: 0;
+}
+
+.headerActions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.inviteButton,
+.addMovieButton,
+.menuButton {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+}
+
+.inviteButton {
+    background: white;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.inviteButton:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.addMovieButton {
+    background: #a855f7;
+    color: white;
+}
+
+.addMovieButton:hover {
+    background: #9333ea;
+}
+
+.menuButton {
+    background: white;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    padding: var(--spacing-sm);
+}
+
+.menuButton:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.headerBottom {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.memberAvatars {
+    display: flex;
+    align-items: center;
+}
+
+.avatarWrapper {
+    position: relative;
+    margin-left: -8px;
+}
+
+.avatarWrapper:first-child {
+    margin-left: 0;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: 2px solid white;
+    object-fit: cover;
+}
+
+.avatarPlaceholder {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: 2px solid white;
+    background: #a855f7;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+.createdBy {
+    font-size: var(--font-size-sm);
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: var(--spacing-md);
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: var(--spacing-xl);
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: #6b7280;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-bottom: -1px;
+}
+
+.tab:hover {
+    color: #374151;
+}
+
+.tabActive {
+    color: #a855f7;
+    border-bottom-color: #a855f7;
+    background: #faf5ff;
+}
+
+.tabBadge {
+    padding: 2px 8px;
+    background: #f3e8ff;
+    color: #a855f7;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.tabBadgeGray {
+    padding: 2px 8px;
+    background: #f3f4f6;
+    color: #6b7280;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}

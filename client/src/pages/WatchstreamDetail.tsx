@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { Movie, StreamingPlatform } from '../types';
@@ -9,6 +9,8 @@ import { SearchBar } from '../components/SearchBar';
 import { StreamingPlatformBadge } from '../components/StreamingPlatformBadge';
 import { RecommendToCirclesModal } from '../components/RecommendToCirclesModal';
 import { DiscussionDrawer } from '../components/DiscussionDrawer';
+import { RefreshButton } from '../components/RefreshButton';
+import { useRefresh, usePolling } from '../hooks';
 import styles from './WatchstreamDetail.module.css';
 
 export function WatchstreamDetail() {
@@ -23,13 +25,7 @@ export function WatchstreamDetail() {
     const [showDiscussionDrawer, setShowDiscussionDrawer] = useState(false);
     const [discussionMovie, setDiscussionMovie] = useState<any | null>(null);
 
-    useEffect(() => {
-        if (id) {
-            loadMovies();
-        }
-    }, [id]);
-
-    const loadMovies = async () => {
+    const loadMovies = useCallback(async () => {
         if (!id) return;
         setLoading(true);
         try {
@@ -44,31 +40,69 @@ export function WatchstreamDetail() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
 
+    // Manual refresh
+    const { refresh, isRefreshing } = useRefresh(loadMovies);
+
+    // Optional polling (60 seconds)
+    usePolling(loadMovies, { interval: 60000, enabled: true });
+
+    useEffect(() => {
+        if (id) {
+            loadMovies();
+        }
+    }, [id, loadMovies]);
+
+    // Optimistic add movie
     const handleAddMovie = async (movie: Movie, streamingPlatforms?: StreamingPlatform[]) => {
         if (!id) return;
+
+        const movieWithPlatforms = { ...movie, streamingPlatforms, watchStatus: activeTab };
+        const previousBacklog = [...backlogMovies];
+        const previousWatched = [...watchedMovies];
+
         try {
-            await api.addMovieToWatchstream(parseInt(id), movie.tmdbId, activeTab, streamingPlatforms);
+            // Optimistically add to UI
+            if (activeTab === 'backlog') {
+                setBacklogMovies(prev => [movieWithPlatforms, ...prev]);
+            } else {
+                setWatchedMovies(prev => [movieWithPlatforms, ...prev]);
+            }
             setShowAddMovieModal(false);
-            loadMovies();
+
+            // Make API call
+            await api.addMovieToWatchstream(parseInt(id), movie.dataProviderId, activeTab, streamingPlatforms);
         } catch (error: any) {
+            // Rollback on error
+            setBacklogMovies(previousBacklog);
+            setWatchedMovies(previousWatched);
             console.error('Failed to add movie:', error);
             alert(error.message || 'Failed to add movie');
         }
     };
 
-    const handleMarkAsWatched = async (movieTmdbId: number) => {
+    // Optimistic mark as watched
+    const handleMarkAsWatched = async (movieId: number) => {
         if (!id) return;
+
+        const movie = backlogMovies.find(m => m.dataProviderId === movieId);
+        if (!movie) return;
+
+        const previousBacklog = [...backlogMovies];
+        const previousWatched = [...watchedMovies];
+
         try {
-            const movie = backlogMovies.find(m => m.tmdbId === movieTmdbId);
-            await api.updateMovieStatus(parseInt(id), movieTmdbId, 'watched', movie?.streamingPlatforms);
-            // Move from backlog to watched
-            if (movie) {
-                setBacklogMovies(prev => prev.filter(m => m.tmdbId !== movieTmdbId));
-                setWatchedMovies(prev => [movie, ...prev]);
-            }
+            // Optimistically move from backlog to watched
+            setBacklogMovies(prev => prev.filter(m => m.dataProviderId !== movieId));
+            setWatchedMovies(prev => [{ ...movie, watchStatus: 'watched' }, ...prev]);
+
+            // Make API call
+            await api.updateMovieStatus(parseInt(id), movieId, 'watched', movie.streamingPlatforms);
         } catch (error) {
+            // Rollback on error
+            setBacklogMovies(previousBacklog);
+            setWatchedMovies(previousWatched);
             console.error('Failed to update movie status:', error);
         }
     };
@@ -103,6 +137,7 @@ export function WatchstreamDetail() {
             <div className={styles.header}>
                 <div className={styles.headerContent}>
                     <h1 className={styles.title}>Watchstream</h1>
+                    <RefreshButton onRefresh={refresh} loading={isRefreshing} />
                 </div>
                 <div className={styles.tabs}>
                     <button
@@ -126,7 +161,7 @@ export function WatchstreamDetail() {
                 <div className={styles.grid}>
                     {currentMovies.map((movie) => (
                         <Card
-                            key={movie.tmdbId}
+                            key={movie.dataProviderId}
                             className={`${styles.movieCard} ${styles.clickableCard}`}
                             onClick={() => handleOpenDiscussion(movie)}
                         >
@@ -148,7 +183,7 @@ export function WatchstreamDetail() {
                                             className={styles.cardActionButton}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleMarkAsWatched(movie.tmdbId);
+                                                handleMarkAsWatched(movie.dataProviderId);
                                             }}
                                             title="Mark Watched"
                                         >

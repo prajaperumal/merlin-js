@@ -11,8 +11,8 @@
 }
 
 .modal {
-    background: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
+    background: white;
+    border: 1px solid #e5e7eb;
     border-radius: var(--radius-xl);
     padding: var(--spacing-xl);
     max-width: 600px;
@@ -20,7 +20,7 @@
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     animation: slideUp 0.3s ease;
 }
 
@@ -34,7 +34,7 @@
 .title {
     font-size: var(--font-size-2xl);
     font-weight: 600;
-    color: var(--color-text-primary);
+    color: #1f2937;
 }
 
 .closeButton {
@@ -44,7 +44,7 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-md);
-    color: var(--color-text-secondary);
+    color: #6b7280;
     transition: all var(--transition-fast);
     cursor: pointer;
     background: none;
@@ -52,8 +52,8 @@
 }
 
 .closeButton:hover {
-    background: var(--color-bg-hover);
-    color: var(--color-text-primary);
+    background: #f3f4f6;
+    color: #1f2937;
 }
 
 .content {

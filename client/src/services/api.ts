@@ -111,15 +111,15 @@ class ApiService {
         }
     }
 
-    async removeMovieFromWatchstream(watchstreamId: number, movieTmdbId: number): Promise<void> {
-        await fetch(`${API_BASE}/watchstreams/${watchstreamId}/movies/${movieTmdbId}`, {
+    async removeMovieFromWatchstream(watchstreamId: number, movieId: number): Promise<void> {
+        await fetch(`${API_BASE}/watchstreams/${watchstreamId}/movies/${movieId}`, {
             method: 'DELETE',
             credentials: 'include',
         });
     }
 
-    async updateMovieStatus(watchstreamId: number, movieTmdbId: number, watchStatus: string, streamingPlatforms?: StreamingPlatform[]): Promise<void> {
-        await fetch(`${API_BASE}/watchstreams/${watchstreamId}/movies/${movieTmdbId}`, {
+    async updateMovieStatus(watchstreamId: number, movieId: number, watchStatus: string, streamingPlatforms?: StreamingPlatform[]): Promise<void> {
+        await fetch(`${API_BASE}/watchstreams/${watchstreamId}/movies/${movieId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ watchStatus, streamingPlatforms }),
@@ -221,8 +221,8 @@ class ApiService {
         }
     }
 
-    async removeMovieFromCircle(circleId: number, movieTmdbId: number): Promise<void> {
-        await fetch(`${API_BASE}/circles/${circleId}/movies/${movieTmdbId}`, {
+    async removeMovieFromCircle(circleId: number, movieId: number): Promise<void> {
+        await fetch(`${API_BASE}/circles/${circleId}/movies/${movieId}`, {
             method: 'DELETE',
             credentials: 'include',
         });
@@ -246,6 +246,40 @@ class ApiService {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
         return data.comment;
+    }
+
+    // Notifications
+    async getNotifications(): Promise<{ notifications: any[]; unreadCount: number }> {
+        const res = await fetch(`${API_BASE}/notifications`, { credentials: 'include' });
+        const data = await res.json();
+        return data;
+    }
+
+    async getUnreadCount(): Promise<number> {
+        const res = await fetch(`${API_BASE}/notifications/unread-count`, { credentials: 'include' });
+        const data = await res.json();
+        return data.unreadCount;
+    }
+
+    async markNotificationAsRead(id: number): Promise<void> {
+        await fetch(`${API_BASE}/notifications/${id}/read`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+    }
+
+    async markAllNotificationsAsRead(): Promise<void> {
+        await fetch(`${API_BASE}/notifications/read-all`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+    }
+
+    async deleteNotification(id: number): Promise<void> {
+        await fetch(`${API_BASE}/notifications/${id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
     }
 }
 

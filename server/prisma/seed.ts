@@ -7,6 +7,7 @@ async function main() {
 
     // Find existing data
     console.log('🧹 Cleaning existing data...');
+    await prisma.notification.deleteMany();
     await prisma.watchstreamMovie.deleteMany();
     await prisma.circleMember.deleteMany();
     await prisma.circle.deleteMany();
@@ -89,7 +90,7 @@ async function main() {
         // Action Movies
         prisma.movie.create({
             data: {
-                tmdbId: 603,
+                dataProviderId: 603,
                 title: 'The Matrix',
                 year: '1999',
                 overview: 'A computer hacker learns about the true nature of reality.',
@@ -100,7 +101,7 @@ async function main() {
         }),
         prisma.movie.create({
             data: {
-                tmdbId: 155,
+                dataProviderId: 155,
                 title: 'The Dark Knight',
                 year: '2008',
                 overview: 'Batman faces the Joker in Gotham City.',
@@ -112,7 +113,7 @@ async function main() {
         // Sci-Fi
         prisma.movie.create({
             data: {
-                tmdbId: 27205,
+                dataProviderId: 27205,
                 title: 'Inception',
                 year: '2010',
                 overview: 'A thief who steals corporate secrets through dream-sharing technology.',
@@ -123,7 +124,7 @@ async function main() {
         }),
         prisma.movie.create({
             data: {
-                tmdbId: 157336,
+                dataProviderId: 157336,
                 title: 'Interstellar',
                 year: '2014',
                 overview: 'A team of explorers travel through a wormhole in space.',
@@ -135,7 +136,7 @@ async function main() {
         // Drama
         prisma.movie.create({
             data: {
-                tmdbId: 278,
+                dataProviderId: 278,
                 title: 'The Shawshank Redemption',
                 year: '1994',
                 overview: 'Two imprisoned men bond over a number of years.',
@@ -146,7 +147,7 @@ async function main() {
         }),
         prisma.movie.create({
             data: {
-                tmdbId: 238,
+                dataProviderId: 238,
                 title: 'The Godfather',
                 year: '1972',
                 overview: 'The aging patriarch of an organized crime dynasty transfers control.',
@@ -158,7 +159,7 @@ async function main() {
         // Comedy
         prisma.movie.create({
             data: {
-                tmdbId: 13,
+                dataProviderId: 13,
                 title: 'Forrest Gump',
                 year: '1994',
                 overview: 'The presidencies of Kennedy and Johnson unfold through the perspective of an Alabama man.',
@@ -169,7 +170,7 @@ async function main() {
         }),
         prisma.movie.create({
             data: {
-                tmdbId: 680,
+                dataProviderId: 680,
                 title: 'Pulp Fiction',
                 year: '1994',
                 overview: 'The lives of two mob hitmen, a boxer, and a pair of diner bandits intertwine.',
@@ -181,7 +182,7 @@ async function main() {
         // Horror
         prisma.movie.create({
             data: {
-                tmdbId: 694,
+                dataProviderId: 694,
                 title: 'The Shining',
                 year: '1980',
                 overview: 'A family heads to an isolated hotel for the winter.',
@@ -192,7 +193,7 @@ async function main() {
         }),
         prisma.movie.create({
             data: {
-                tmdbId: 346,
+                dataProviderId: 346,
                 title: 'Seven',
                 year: '1995',
                 overview: 'Two detectives hunt a serial killer who uses the seven deadly sins.',
@@ -251,14 +252,14 @@ async function main() {
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[0].id,
-                movieTmdbId: movies[0].tmdbId, // The Matrix
+                movieId: movies[0].id, // The Matrix
                 watchStatus: 'watched',
             },
         }),
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[0].id,
-                movieTmdbId: movies[1].tmdbId, // The Dark Knight
+                movieId: movies[1].id, // The Dark Knight
                 watchStatus: 'backlog',
             },
         }),
@@ -266,14 +267,14 @@ async function main() {
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[1].id,
-                movieTmdbId: movies[2].tmdbId, // Inception
+                movieId: movies[2].id, // Inception
                 watchStatus: 'watched',
             },
         }),
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[1].id,
-                movieTmdbId: movies[3].tmdbId, // Interstellar
+                movieId: movies[3].id, // Interstellar
                 watchStatus: 'backlog',
             },
         }),
@@ -281,14 +282,14 @@ async function main() {
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[2].id,
-                movieTmdbId: movies[4].tmdbId, // Shawshank
+                movieId: movies[4].id, // Shawshank
                 watchStatus: 'watched',
             },
         }),
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[2].id,
-                movieTmdbId: movies[5].tmdbId, // Godfather
+                movieId: movies[5].id, // Godfather
                 watchStatus: 'backlog',
             },
         }),
@@ -296,14 +297,14 @@ async function main() {
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[3].id,
-                movieTmdbId: movies[6].tmdbId, // Forrest Gump
+                movieId: movies[6].id, // Forrest Gump
                 watchStatus: 'watched',
             },
         }),
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[3].id,
-                movieTmdbId: movies[7].tmdbId, // Pulp Fiction
+                movieId: movies[7].id, // Pulp Fiction
                 watchStatus: 'backlog',
             },
         }),
@@ -311,14 +312,14 @@ async function main() {
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[4].id,
-                movieTmdbId: movies[8].tmdbId, // The Shining
+                movieId: movies[8].id, // The Shining
                 watchStatus: 'watched',
             },
         }),
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[4].id,
-                movieTmdbId: movies[9].tmdbId, // Seven
+                movieId: movies[9].id, // Seven
                 watchStatus: 'backlog',
             },
         }),
@@ -326,14 +327,14 @@ async function main() {
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[5].id,
-                movieTmdbId: movies[0].tmdbId,
+                movieId: movies[0].id,
                 watchStatus: 'backlog',
             },
         }),
         prisma.watchstreamMovie.create({
             data: {
                 watchstreamId: watchstreams[5].id,
-                movieTmdbId: movies[2].tmdbId,
+                movieId: movies[2].id,
                 watchStatus: 'backlog',
             },
         }),
@@ -539,7 +540,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[0].id,
-                movieTmdbId: movies[0].tmdbId, // The Matrix
+                movieId: movies[0].id, // The Matrix
                 addedBy: testUser.id,
                 recommendation: "Mind-bending sci-fi that changed cinema forever. The action sequences are still incredible!",
             },
@@ -547,7 +548,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[0].id,
-                movieTmdbId: movies[4].tmdbId, // Shawshank
+                movieId: movies[4].id, // Shawshank
                 addedBy: users[0].id, // Alice
                 recommendation: "One of the greatest films ever made. The story of hope and friendship will stay with you forever.",
             },
@@ -555,7 +556,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[0].id,
-                movieTmdbId: movies[5].tmdbId, // Godfather
+                movieId: movies[5].id, // Godfather
                 addedBy: users[1].id, // Bob
             },
         }),
@@ -563,7 +564,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[1].id,
-                movieTmdbId: movies[2].tmdbId, // Inception
+                movieId: movies[2].id, // Inception
                 addedBy: testUser.id,
                 recommendation: "Nolan at his best! Every time you watch it, you discover something new. The dream sequences are perfection.",
             },
@@ -571,7 +572,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[1].id,
-                movieTmdbId: movies[3].tmdbId, // Interstellar
+                movieId: movies[3].id, // Interstellar
                 addedBy: users[0].id, // Alice
                 recommendation: "Brings tears to my eyes every time. The science is fascinating and the emotional core is powerful.",
             },
@@ -579,7 +580,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[1].id,
-                movieTmdbId: movies[0].tmdbId, // The Matrix
+                movieId: movies[0].id, // The Matrix
                 addedBy: users[3].id, // David
                 recommendation: "The OG of modern sci-fi. Take the red pill!",
             },
@@ -588,7 +589,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[2].id,
-                movieTmdbId: movies[8].tmdbId, // The Shining
+                movieId: movies[8].id, // The Shining
                 addedBy: testUser.id,
                 recommendation: "Kubrick's masterpiece. Atmospheric, terrifying, and unforgettable. All work and no play...",
             },
@@ -596,7 +597,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[2].id,
-                movieTmdbId: movies[9].tmdbId, // Seven
+                movieId: movies[9].id, // Seven
                 addedBy: users[1].id, // Bob
                 recommendation: "Dark, disturbing, and brilliant. The ending will haunt you. What's in the box?!",
             },
@@ -605,7 +606,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[3].id,
-                movieTmdbId: movies[5].tmdbId, // Godfather
+                movieId: movies[5].id, // Godfather
                 addedBy: testUser.id,
                 recommendation: "The definition of a masterpiece. Every frame is perfect. An offer you can't refuse!",
             },
@@ -613,14 +614,14 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[3].id,
-                movieTmdbId: movies[4].tmdbId, // Shawshank
+                movieId: movies[4].id, // Shawshank
                 addedBy: users[2].id, // Carol
             },
         }),
         prisma.circleMovie.create({
             data: {
                 circleId: circles[3].id,
-                movieTmdbId: movies[6].tmdbId, // Forrest Gump
+                movieId: movies[6].id, // Forrest Gump
                 addedBy: users[4].id, // Emma
                 recommendation: "Life is like a box of chocolates... This movie has it all: humor, heart, and history.",
             },
@@ -629,7 +630,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[4].id,
-                movieTmdbId: movies[1].tmdbId, // Dark Knight
+                movieId: movies[1].id, // Dark Knight
                 addedBy: testUser.id,
                 recommendation: "Perfect weekend watch! Heath Ledger's Joker is iconic. Why so serious?",
             },
@@ -637,7 +638,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[4].id,
-                movieTmdbId: movies[7].tmdbId, // Pulp Fiction
+                movieId: movies[7].id, // Pulp Fiction
                 addedBy: users[0].id, // Alice
                 recommendation: "Tarantino's best work. Non-linear storytelling at its finest. Say 'what' again!",
             },
@@ -645,7 +646,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[4].id,
-                movieTmdbId: movies[6].tmdbId, // Forrest Gump
+                movieId: movies[6].id, // Forrest Gump
                 addedBy: users[4].id, // Emma
             },
         }),
@@ -653,7 +654,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[5].id,
-                movieTmdbId: movies[2].tmdbId, // Inception
+                movieId: movies[2].id, // Inception
                 addedBy: testUser.id,
                 recommendation: "Technically brilliant with layers of meaning. The practical effects are outstanding. A study in filmmaking.",
             },
@@ -661,7 +662,7 @@ async function main() {
         prisma.circleMovie.create({
             data: {
                 circleId: circles[5].id,
-                movieTmdbId: movies[5].tmdbId, // Godfather
+                movieId: movies[5].id, // Godfather
                 addedBy: users[3].id, // David
                 recommendation: "The pinnacle of American cinema. Coppola's direction, Brando's performance - everything is perfect.",
             },
@@ -704,6 +705,132 @@ async function main() {
         }
     }
 
+    // Add sample notifications
+    console.log('🔔 Creating sample notifications...');
+    await Promise.all([
+        // Circle invitations
+        prisma.notification.create({
+            data: {
+                userId: testUser.id,
+                type: 'circle_invite',
+                title: 'Circle Invitation',
+                message: `Alice Johnson invited you to join "Movie Buffs"`,
+                metadata: {
+                    circleName: 'Movie Buffs',
+                    inviterName: 'Alice Johnson',
+                    circleId: circles[0].id,
+                },
+                link: `/circles/${circles[0].id}`,
+                read: false,
+                createdAt: new Date(Date.now() - 3600000), // 1 hour ago
+            },
+        }),
+        // Invitation accepted
+        prisma.notification.create({
+            data: {
+                userId: testUser.id,
+                type: 'invite_accepted',
+                title: 'Invitation Accepted',
+                message: `Bob Smith joined your circle "Horror Club"`,
+                metadata: {
+                    circleName: 'Horror Club',
+                    accepterName: 'Bob Smith',
+                    circleId: circles[2].id,
+                },
+                link: `/circles/${circles[2].id}`,
+                read: false,
+                createdAt: new Date(Date.now() - 7200000), // 2 hours ago
+            },
+        }),
+        // Movie recommended
+        prisma.notification.create({
+            data: {
+                userId: testUser.id,
+                type: 'movie_recommended',
+                title: 'New Movie Recommendation',
+                message: `Alice Johnson recommended "The Shawshank Redemption" in "Movie Buffs"`,
+                metadata: {
+                    movieTitle: 'The Shawshank Redemption',
+                    recommenderName: 'Alice Johnson',
+                    circleName: 'Movie Buffs',
+                    circleId: circles[0].id,
+                },
+                link: `/circles/${circles[0].id}`,
+                read: false,
+                createdAt: new Date(Date.now() - 10800000), // 3 hours ago
+            },
+        }),
+        prisma.notification.create({
+            data: {
+                userId: testUser.id,
+                type: 'movie_recommended',
+                title: 'New Movie Recommendation',
+                message: `David Brown recommended "The Matrix" in "Sci-Fi Fans"`,
+                metadata: {
+                    movieTitle: 'The Matrix',
+                    recommenderName: 'David Brown',
+                    circleName: 'Sci-Fi Fans',
+                    circleId: circles[1].id,
+                },
+                link: `/circles/${circles[1].id}`,
+                read: true,
+                createdAt: new Date(Date.now() - 86400000), // 1 day ago
+            },
+        }),
+        // Comments
+        prisma.notification.create({
+            data: {
+                userId: testUser.id,
+                type: 'comment_added',
+                title: 'New Comment',
+                message: `Carol Williams commented on "Inception" in "Sci-Fi Fans"`,
+                metadata: {
+                    commenterName: 'Carol Williams',
+                    movieTitle: 'Inception',
+                    circleName: 'Sci-Fi Fans',
+                    circleId: circles[1].id,
+                },
+                link: `/circles/${circles[1].id}`,
+                read: false,
+                createdAt: new Date(Date.now() - 14400000), // 4 hours ago
+            },
+        }),
+        prisma.notification.create({
+            data: {
+                userId: testUser.id,
+                type: 'comment_added',
+                title: 'New Comment',
+                message: `Emma Davis commented on "The Godfather" in "Classic Cinema"`,
+                metadata: {
+                    commenterName: 'Emma Davis',
+                    movieTitle: 'The Godfather',
+                    circleName: 'Classic Cinema',
+                    circleId: circles[3].id,
+                },
+                link: `/circles/${circles[3].id}`,
+                read: true,
+                createdAt: new Date(Date.now() - 172800000), // 2 days ago
+            },
+        }),
+        // More recent notifications
+        prisma.notification.create({
+            data: {
+                userId: testUser.id,
+                type: 'invite_accepted',
+                title: 'Invitation Accepted',
+                message: `Emma Davis joined your circle "Classic Cinema"`,
+                metadata: {
+                    circleName: 'Classic Cinema',
+                    accepterName: 'Emma Davis',
+                    circleId: circles[3].id,
+                },
+                link: `/circles/${circles[3].id}`,
+                read: false,
+                createdAt: new Date(Date.now() - 1800000), // 30 minutes ago
+            },
+        }),
+    ]);
+
     console.log('✅ Database seeded successfully!');
     console.log('\n📊 Summary:');
     console.log(`   - Using your account: ${testUser.email}`);
@@ -712,6 +839,7 @@ async function main() {
     console.log(`   - Created 6 watchstreams with movies`);
     console.log(`   - Created 6 circles with members`);
     console.log(`   - Added 16 movies to circles with recommendations`);
+    console.log(`   - Created 7 sample notifications`);
     console.log('\n🎉 Refresh your browser to see the data!');
 }
 

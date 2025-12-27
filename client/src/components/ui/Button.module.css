@@ -38,18 +38,19 @@
 }
 
 .primary {
-    background: var(--gradient-primary);
+    background: #a855f7;
     color: white;
-    box-shadow: var(--shadow-md);
+    box-shadow: none;
 }
 
 .primary:hover:not(:disabled) {
-    box-shadow: var(--shadow-glow-strong);
-    transform: translateY(-2px);
+    background: #9333ea;
+    box-shadow: none;
+    transform: none;
 }
 
 .primary:active:not(:disabled) {
-    transform: translateY(0);
+    transform: none;
 }
 
 .secondary {
@@ -66,15 +67,15 @@
 }
 
 .danger {
-    background: linear-gradient(135deg, hsl(0, 84%, 60%), hsl(0, 84%, 50%));
+    background: #ef4444;
     color: white;
-    box-shadow: var(--shadow-md);
+    box-shadow: none;
 }
 
 .danger:hover:not(:disabled) {
-    filter: brightness(1.1);
-    box-shadow: 0 0 24px rgba(239, 68, 68, 0.4);
-    transform: translateY(-2px);
+    background: #dc2626;
+    box-shadow: none;
+    transform: none;
 }
 
 .ghost {

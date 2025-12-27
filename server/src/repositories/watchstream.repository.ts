@@ -69,12 +69,12 @@ export class WatchstreamRepository {
     /**
      * Add movie to watchstream
      */
-    async addMovie(watchstreamId: number, movieTmdbId: number, watchStatus: string = 'backlog', streamingPlatforms?: any) {
+    async addMovie(watchstreamId: number, movieId: number, watchStatus: string = 'backlog', streamingPlatforms?: any) {
         try {
             return await prisma.watchstreamMovie.create({
                 data: {
                     watchstreamId,
-                    movieTmdbId,
+                    movieId,
                     watchStatus,
                     streamingPlatforms: streamingPlatforms || null,
                 },
@@ -90,11 +90,11 @@ export class WatchstreamRepository {
     /**
      * Remove movie from watchstream
      */
-    async removeMovie(watchstreamId: number, movieTmdbId: number) {
+    async removeMovie(watchstreamId: number, movieId: number) {
         return prisma.watchstreamMovie.deleteMany({
             where: {
                 watchstreamId,
-                movieTmdbId,
+                movieId,
             },
         });
     }
@@ -102,7 +102,7 @@ export class WatchstreamRepository {
     /**
      * Update movie watch status
      */
-    async updateMovieStatus(watchstreamId: number, movieTmdbId: number, watchStatus: string, streamingPlatforms?: any) {
+    async updateMovieStatus(watchstreamId: number, movieId: number, watchStatus: string, streamingPlatforms?: any) {
         const updateData: any = { watchStatus };
         if (streamingPlatforms !== undefined) {
             updateData.streamingPlatforms = streamingPlatforms;
@@ -111,7 +111,7 @@ export class WatchstreamRepository {
         return prisma.watchstreamMovie.updateMany({
             where: {
                 watchstreamId,
-                movieTmdbId,
+                movieId,
             },
             data: updateData,
         });
@@ -132,10 +132,10 @@ export class WatchstreamRepository {
         });
 
         // Get movie details for each
-        const movieIds = watchstreamMovies.map(wm => wm.movieTmdbId);
+        const movieIds = watchstreamMovies.map(wm => wm.movieId);
         const movies = await prisma.movie.findMany({
             where: {
-                tmdbId: {
+                dataProviderId: {
                     in: movieIds,
                 },
             },
@@ -143,7 +143,7 @@ export class WatchstreamRepository {
 
         // Combine movie data with watch status and streaming platforms
         return watchstreamMovies.map(wm => {
-            const movie = movies.find(m => m.tmdbId === wm.movieTmdbId);
+            const movie = movies.find(m => m.dataProviderId === wm.movieId);
             return {
                 ...movie,
                 watchStatus: wm.watchStatus,
